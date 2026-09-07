@@ -27,10 +27,8 @@ SLiCAP 5.2.1 官方 Structured Electronic Design Environment 原理图画布，�
 - 支持 `.slicap_sch` 绘制、保存、官方导出 `.cir` 和手写网表输入。
 - 支持 Laplace 传递函数、DC 增益、极零点、MNA、Bode 和噪声等数值结果。
 - 支持 SFG 构建、根聚类、频率子区间、误差受控图操作、局部符号根和报告。
-- `demo_2_numeric` 可得到 4 个频率子区间，并解释 3 个极点和 2 个零点。
 - 视觉模块接口暂时保留，但根据当前项目决定不纳入本阶段测试与验收。
 - 当前还不是免 Python 的独立 EXE；standalone 安装包属于下一交付阶段。
-- 已移除旧 React Web Schematic，不启动 5173、8000 或 7860 端口。
 
 ## 首次安装
 
