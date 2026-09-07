@@ -1,0 +1,39 @@
+{
+  "captured_at": "2026-09-04",
+  "environments": {
+    "legacy": {"python": "3.14", "slicap": "4.0.8", "preserved": true},
+    "next": {"python": "3.12.14", "slicap": "5.2.1", "gradio": "5.50.0"}
+  },
+  "verification": {
+    "sfg_tests_legacy": 52,
+    "sfg_tests_next": 52,
+    "backend_tests": 16,
+    "web_production_build": "passed",
+    "official_slicap_schematic_cli_round_trip": "passed"
+  },
+  "circuit_library": {"single_mos": 14, "double_mos": 2, "multi_mos": 44, "total": 60},
+  "structure_regression": {
+    "passed": 44,
+    "numeric_passed": 20,
+    "symbolic_structure_only": 24,
+    "failed_obsolete_drafts": 16,
+    "encoding_failures_after_fix": 0,
+    "failure_cause": "undefined PMOS model P; two drafts also use invalid DC current-source syntax"
+  },
+  "version_comparison": {
+    "numeric_cases": 20,
+    "passed": 20,
+    "symbolically_equal_transfer_functions": 20,
+    "max_sampled_transfer_relative_error": 5.387380942283987e-16,
+    "max_pole_relative_error": 0.0,
+    "max_zero_relative_error": 0.0
+  },
+  "demo_2_numeric": {
+    "poles_rad_per_second": [-2096.8260516737355, -217629.06233693848, -85714397821.8667],
+    "zeros_rad_per_second": [39832835.22539139, -9563777692.368248],
+    "sfg_subranges": 4,
+    "accepted_steps": 21,
+    "rejected_steps": 22,
+    "status": "end_to_end_passed"
+  }
+}

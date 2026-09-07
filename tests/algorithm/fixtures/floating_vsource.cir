@@ -1,0 +1,7 @@
+Floating_vsource
+Vin a b V value={Vin}
+R1 a 0 R value={R1}
+R2 b 0 R value={R2}
+.source Vin
+.detector V_a
+.end

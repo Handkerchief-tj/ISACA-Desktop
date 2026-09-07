@@ -1,0 +1,8 @@
+source_follower_symbolic
+VDD VDD 0 V dc={VDD} value=0
+Vin gate 0 V value={Vin}
+Rs source 0 R value={Rs}
+M1 VDD gate source 0 M gm={gm} go={go}
+.source Vin
+.detector V_source
+.end

@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.1",
+  "date": "2026-09-07",
+  "integration_head_before_commit": "c22170f696101b3f1b48f5d5dc41a4ed88655353",
+  "algorithm_head_before_commit": "0800212e91d80b319c8189cc0abf8fbed65db2e0",
+  "working_tree_contains_verified_changes": true,
+  "development_wheel_sha256": "a9af743209075a089dea9fffc0d500a4f9dba14147ac93d4aa34630cc85ab8f6",
+  "versions": {
+    "python": "3.12.14",
+    "SLiCAP": "5.2.1",
+    "sfg-prototype": "0.2.3",
+    "PySide6": "6.11.2",
+    "sympy": "1.14.0",
+    "numpy": "2.5.2"
+  },
+  "paper_policy": {
+    "transfer_error_controls_manipulation_acceptance": true,
+    "root_location_error_is_diagnostic": true,
+    "enforce_target_root_error": false,
+    "target_root_use_frequency_reduction": false,
+    "fallback_to_original_graph": false,
+    "candidate_generation_mode": "auto",
+    "exhaustive_candidate_edge_limit": 16,
+    "feedback_loop_gain_threshold": 1.0,
+    "multi_loop_gain_envelope": true
+  },
+  "tests": {
+    "integration": {"passed": 38, "skipped": 1, "failed": 0, "errors": 0},
+    "algorithm": {"passed": 60, "skipped": 0, "failed": 0, "errors": 0},
+    "vision": "deferred_by_user"
+  },
+  "demo_2_numeric": {
+    "input_sha256": "9490fb1f51da5be1e9bda9c18859b51b8945b518f56ea1fd1c282cebf5743ac4",
+    "elapsed_seconds": 148.046,
+    "performance_benchmark": false,
+    "accepted_steps": 21,
+    "reference_poles_rad_s": [-2096.8260516737355, -217629.06233693848, -85714397821.8667],
+    "reference_zeros_rad_s": [39832835.22539139, -9563777692.368248],
+    "frequency_results": [
+      {"cluster": 1, "hz": [10, 3399.850175460043], "sampled_max_magnitude_error_db": 0.000336255785150286, "sampled_max_phase_error_deg": 0.00788256333538584},
+      {"cluster": 2, "hz": [3399.850175460043, 468596.65805906], "sampled_max_magnitude_error_db": 0.0588421969897723, "sampled_max_phase_error_deg": 4.194397290967},
+      {"cluster": 3, "hz": [468596.65805906, 98232563.52842186], "sampled_max_magnitude_error_db": 0.08942092836574034, "sampled_max_phase_error_deg": 4.266253155067744},
+      {"cluster": 4, "hz": [98232563.52842186, 100000000000], "sampled_max_magnitude_error_db": 0.08964611225906083, "sampled_max_phase_error_deg": 3.697496667512638}
+    ],
+    "target_roots": [
+      {"cluster": 1, "kind": "pole", "frequency_hz": 346.0102, "relative_root_error": 0.03682723, "expression": "((Gl + go)*(-Gin*gpi - Gin*gx - gpi*gx))/((cmu*gm)*(Gin + gx) + (Cl + cmu + cx)*(Gin*gpi + Gin*gx + gpi*gx))"},
+      {"cluster": 2, "kind": "pole", "frequency_hz": 47417.81, "relative_root_error": 0.3690033, "expression": "-(Cl*gpi + Cl*gx + cmu*gm + cmu*gpi + cmu*gx + cx*gpi + cx*gx)/((cmu + cpi)*(Cl + cmu + cx))"},
+      {"cluster": 3, "kind": "zero", "frequency_hz": 6366197.72, "relative_root_error": 0.004196658, "expression": "gm/cmu"},
+      {"cluster": 4, "kind": "zero", "frequency_hz": 1515761362.78, "relative_root_error": 0.004179119, "expression": "-cmu*gx/(cx*(cmu + cpi))"},
+      {"cluster": 4, "kind": "pole", "frequency_hz": 13641852265.02, "relative_root_error": 0.00000130792, "expression": "-(Gin + gx)/cx"}
+    ],
+    "all_target_roots_resolved": true,
+    "eq22_symbolically_equivalent": true,
+    "eq24_symbolically_equivalent": true,
+    "all_subranges_within_two_db_five_deg": true,
+    "diagnostics": ["graphviz_unavailable"]
+  },
+  "standalone_exe": "not_built",
+  "clean_windows_installation": "not_tested"
+}

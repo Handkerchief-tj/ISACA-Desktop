@@ -1,0 +1,7 @@
+RC_lowpass_numeric
+Vin in 0 V value=1
+R1 in out R value=1k
+C1 out 0 C value=1u
+.source Vin
+.detector V_out
+.end

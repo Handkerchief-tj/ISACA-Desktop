@@ -1,0 +1,15 @@
+mycircuit
+
+VDD VDD 0 V dc={VDD} value=0
+Vin in 0 V value={Vin}
+
+Rin in net1 R value={1/Gin}
+Rl VDD net2 R value={1/Gl}
+
+Q1 net2 net1 0 0 QV gm={gm} go={go} gpi={gpi} cpi ={cpi} cbx={cx} cbc={cmu} rb={1/gx}
+
+C1 net2 0 C value={Cl}
+
+.source Vin
+.detector V_net2
+.end

@@ -1,0 +1,6 @@
+Independent_current_source
+Iin 0 out I value=1m
+R1 out 0 R value=1k
+.source Iin
+.detector V_out
+.end

@@ -1,0 +1,14 @@
+Controlled_sources
+Vin in 0 V value={Vin}
+Vx sense 0 V value=0
+E1 evout 0 in 0 E value={A}
+G1 gout 0 in 0 g value={gm}
+F1 fout 0 Vx F value={T}
+H1 hvout 0 Vx H value={Z}
+R1 evout 0 R value={R1}
+R2 gout 0 R value={R2}
+R3 fout 0 R value={R3}
+R4 hvout 0 R value={R4}
+.source Vin
+.detector V_evout
+.end

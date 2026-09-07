@@ -1,0 +1,11 @@
+Current_control_direction
+Vin in 0 V value=1
+Rsen in sense R value=1k
+Vx sense 0 V value=0
+F1 fout 0 Vx F value=2
+Rout fout 0 R value=1k
+H1 hvout 0 Vx H value=2k
+Rload hvout 0 R value=1k
+.source Vin
+.detector V_fout
+.end

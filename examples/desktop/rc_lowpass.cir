@@ -1,0 +1,8 @@
+RC lowpass
+V1 in 0 V value=1
+R1 in out R value={R}
+C1 out 0 C value={C}
+.param R=1k C=1u
+.source V1
+.detector V_out
+.end

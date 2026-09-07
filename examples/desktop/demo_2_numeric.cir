@@ -1,0 +1,11 @@
+mycircuit_paper_numeric
+VDD VDD 0 V dc={VDD} value=0
+Vin in 0 V value={Vin}
+Rin in net1 R value={1/Gin}
+Rl VDD net2 R value={1/Gl}
+Q1 net2 net1 0 0 QV gm={gm} go={go} gpi={gpi} cpi={cpi} cbx={cx} cbc={cmu} rb={1/gx}
+C1 net2 0 C value={Cl}
+.param Gin=1m gx=2m gpi=30u gm=100m go=3u Gl=1m cmu=2.5n cx=35f cpi=12.5n Cl=100n Vin=1 VDD=5
+.source Vin
+.detector V_net2
+.end

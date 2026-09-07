@@ -1,0 +1,8 @@
+VCVS_chain
+Vin in 0 V value=1
+E1 n1 0 in 0 E value=2
+E2 out 0 n1 0 E value=-3
+R1 out 0 R value=1k
+.source Vin
+.detector V_out
+.end

@@ -1,0 +1,1686 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SLiCAP 展平网络到信号流图原型报告</title>
+  <style>
+    :root {
+      --ink: #1d2527;
+      --muted: #627071;
+      --paper: #fbf7ef;
+      --panel: #ffffff;
+      --line: #dfd4c2;
+      --accent: #0c7c74;
+      --accent-2: #b1462f;
+      --accent-3: #d79c2f;
+      --soft: #edf5f2;
+      --code: #142123;
+      --shadow: 0 22px 60px rgba(42, 35, 24, 0.14);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 8%, rgba(12, 124, 116, 0.14), transparent 28rem),
+        radial-gradient(circle at 90% 12%, rgba(215, 156, 47, 0.18), transparent 22rem),
+        linear-gradient(135deg, #fffaf1 0%, #f3efe5 48%, #e7eee9 100%);
+      font-family: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+      line-height: 1.68;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .page {
+      width: min(1180px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 32px 0 80px;
+    }
+
+    .hero {
+      min-height: 82vh;
+      display: grid;
+      align-items: center;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 34px;
+    }
+
+    .hero-card,
+    section {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(223, 212, 194, 0.85);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-card {
+      padding: 46px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      right: -80px;
+      bottom: -70px;
+      border-radius: 50%;
+      background: rgba(12, 124, 116, 0.16);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      display: inline-block;
+      width: 26px;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.15;
+      margin: 0;
+    }
+
+    h1 {
+      margin-top: 18px;
+      font-family: Georgia, "Noto Serif SC", "Songti SC", serif;
+      font-size: clamp(34px, 4.8vw, 60px);
+      letter-spacing: -0.035em;
+    }
+
+    h2 {
+      font-size: clamp(28px, 3.5vw, 44px);
+      margin-bottom: 18px;
+      letter-spacing: -0.03em;
+      font-family: Georgia, "Noto Serif SC", "Songti SC", serif;
+    }
+
+    h3 {
+      font-size: 21px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      margin: 24px 0 0;
+      font-size: 20px;
+      color: #455255;
+      max-width: 780px;
+    }
+
+    .hero-meta {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: #244947;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid rgba(12, 124, 116, 0.18);
+    }
+
+    .hero-figure {
+      padding: 18px;
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      transform: rotate(1.2deg);
+    }
+
+    .hero-figure img,
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .caption {
+      margin: 12px 4px 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: 0 0 28px;
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: rgba(251, 247, 239, 0.88);
+      border: 1px solid rgba(223, 212, 194, 0.8);
+      border-radius: 999px;
+      backdrop-filter: blur(12px);
+    }
+
+    .toc a,
+    .print-button {
+      text-decoration: none;
+      border: 0;
+      border-radius: 999px;
+      background: #fff;
+      color: #344042;
+      padding: 9px 14px;
+      font-weight: 750;
+      font-size: 14px;
+      box-shadow: 0 8px 20px rgba(42, 35, 24, 0.08);
+      cursor: pointer;
+    }
+
+    .toc a:hover,
+    .print-button:hover {
+      color: #fff;
+      background: var(--accent);
+    }
+
+    section {
+      margin: 28px 0;
+      padding: 34px;
+      scroll-margin-top: 88px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .span-4 {
+      grid-column: span 4;
+    }
+
+    .span-5 {
+      grid-column: span 5;
+    }
+
+    .span-6 {
+      grid-column: span 6;
+    }
+
+    .span-7 {
+      grid-column: span 7;
+    }
+
+    .span-12 {
+      grid-column: span 12;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      min-height: 100%;
+    }
+
+    .card.accent {
+      border-color: rgba(12, 124, 116, 0.24);
+      background: linear-gradient(180deg, #ffffff 0%, #eef7f4 100%);
+    }
+
+    .card.warn {
+      border-color: rgba(177, 70, 47, 0.26);
+      background: linear-gradient(180deg, #ffffff 0%, #fff0eb 100%);
+    }
+
+    .lead {
+      font-size: 18px;
+      color: #3a4648;
+      margin-top: 0;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .step {
+      position: relative;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      min-height: 122px;
+    }
+
+    .step::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -16px;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 20px;
+    }
+
+    .step:last-child::after {
+      display: none;
+    }
+
+    .step .num {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .step small {
+      color: var(--muted);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 128px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .timeline-item .tag {
+      font-weight: 900;
+      color: var(--accent-2);
+      background: #fff1ed;
+      border: 1px solid rgba(177, 70, 47, 0.18);
+      border-radius: 999px;
+      text-align: center;
+      padding: 7px 10px;
+    }
+
+    .figure {
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    pre {
+      margin: 0;
+      overflow: auto;
+      padding: 18px;
+      background: #000;
+      color: #d4d4d4;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.55;
+      tab-size: 2;
+    }
+
+    pre.vscode {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 42px),
+        #0b0f14;
+      border: 1px solid #1f2937;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    code {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    .tok-key {
+      color: #569cd6;
+    }
+
+    .tok-fn {
+      color: #dcdcaa;
+    }
+
+    .tok-str {
+      color: #ce9178;
+    }
+
+    .tok-cmt {
+      color: #6a9955;
+      font-style: italic;
+    }
+
+    .tok-num {
+      color: #b5cea8;
+    }
+
+    .tok-op {
+      color: #d4d4d4;
+    }
+
+    .tok-name {
+      color: #9cdcfe;
+    }
+
+    .tok-model {
+      color: #4ec9b0;
+    }
+
+    .tok-param {
+      color: #c586c0;
+    }
+
+    .tok-src {
+      color: #d7ba7d;
+    }
+
+    .inline-code {
+      padding: 2px 6px;
+      border-radius: 7px;
+      color: #113f3b;
+      background: #e4f3ef;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      vertical-align: top;
+      border-bottom: 1px solid #eadfce;
+      text-align: left;
+    }
+
+    th {
+      background: #f4ead9;
+      font-weight: 900;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      padding: 16px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 28px;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .talk-note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-left: 5px solid var(--accent-3);
+      background: #fff8e8;
+      border-radius: 12px;
+      color: #4e3b15;
+    }
+
+    .talk-note strong {
+      color: #7a5200;
+    }
+
+    .two-col-list {
+      columns: 2;
+      column-gap: 28px;
+    }
+
+    .two-col-list li {
+      break-inside: avoid;
+      margin-bottom: 8px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .callout {
+      border-radius: 18px;
+      padding: 18px 20px;
+      background: #eef7f4;
+      border: 1px solid rgba(12, 124, 116, 0.18);
+    }
+
+    .callout.danger {
+      background: #fff1ed;
+      border-color: rgba(177, 70, 47, 0.2);
+    }
+
+    details.details-block {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    details.details-block summary {
+      cursor: pointer;
+      padding: 16px 20px;
+      font-weight: 900;
+      color: #234340;
+      background: #eef7f4;
+    }
+
+    details.details-block pre {
+      border-radius: 0;
+      border-top: 1px solid #1f2937;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 0;
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding-top: 22px;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .step::after {
+        content: "↓";
+        top: auto;
+        right: 50%;
+        bottom: -22px;
+        transform: translateX(50%);
+      }
+
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-12 {
+        grid-column: span 12;
+      }
+
+      .metric-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .timeline-item {
+        grid-template-columns: 1fr;
+      }
+
+      .two-col-list {
+        columns: 1;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        width: 100%;
+        padding: 0;
+      }
+
+      .toc,
+      .print-button {
+        display: none;
+      }
+
+      section,
+      .hero-card,
+      .hero-figure {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero" id="top">
+      <div class="hero-card">
+        <span class="eyebrow">SFG Methods Prototype</span>
+        <h1>从 SLiCAP 网表到信号流图的第一阶段原型</h1>
+        <p class="subtitle">
+          本报告用于说明这段时间的工作：先解释论文中的电路复杂度约简方法，再重点展示当前代码如何读取 <span class="inline-code">.cir</span> 网表、复用 SLiCAP 展平小信号模型、构建信号流图、输出审计报告与 SVG 图。
+        </p>
+        <div class="hero-meta">
+          <span class="pill">核心代码：SLiCAPsfg.py</span>
+          <span class="pill">演示目录：demo_2</span>
+          <span class="pill">当前覆盖：论文第 3 步</span>
+          <span class="pill">输出：DOT / SVG / audit / meta-edge</span>
+        </div>
+      </div>
+      <figure class="hero-figure">
+        <img src="assets/Screenshot 2026-05-12 140358.png" alt="论文中的共射放大器与晶体管小信号模型">
+        <figcaption class="caption">论文示例：共射放大器及晶体管小信号模型。我们的 demo_2 使用同类电路作为讲解对象。</figcaption>
+      </figure>
+    </header>
+
+    <nav class="toc" aria-label="报告目录">
+      <a href="#problem">问题背景</a>
+      <a href="#paper">论文流程</a>
+      <a href="#sfg">为什么用 SFG</a>
+      <a href="#scope">当前成果</a>
+      <a href="#demo">demo_2 流程</a>
+      <a href="#code">代码结构</a>
+      <a href="#outputs">输出解读</a>
+      <a href="#limits">局限与下一步</a>
+      <button class="print-button" onclick="window.print()">打印 / 导出 PDF</button>
+    </nav>
+
+    <section id="problem">
+      <h2>1. 项目要解决什么问题</h2>
+      <div class="grid">
+        <div class="span-7">
+          <p class="lead">
+            我们的长期目标是做一个初步可运行的模拟电路符号化简原型：读取电路网表，得到线性化小信号网络，把网络转换成信号流图，然后基于图结构进行化简，最终输出化简后的传递函数和零极点结果。
+          </p>
+          <p>
+            对模拟电路来说，直接从 MNA 方程推导完整符号传递函数很容易出现表达式爆炸。论文的方法不是先展开一个巨大的代数式再删项，而是先把电路转换成信号流图，在图上识别哪些支路、节点、频率相关项对目标响应影响较小，再用误差控制的方式逐步简化。
+          </p>
+        </div>
+        <div class="span-5">
+          <div class="card accent">
+            <h3>当前工作的定位</h3>
+            <ul>
+              <li>SLiCAP 负责可靠地读取网表、解析模型、展开层次和器件小信号等效。</li>
+              <li>我们的代码把 SLiCAP 展平后的网络 <span class="inline-code">N</span> 转换成信号流图 <span class="inline-code">G</span>。</li>
+              <li>当前实现重点是构图正确性、可审计性和可视化，还没有进入完整的误差控制化简。</li>
+              <li>demo_2 是一个共射放大器例子，适合解释从网表到图的完整调用链。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="paper">
+      <h2>2. 论文的整体算法流程</h2>
+      <p class="lead">
+        论文中的复杂度约简算法可以拆成九个阶段。我们的原型目前主要实现第 1 步到第 3 步，尤其是第 3 步 <span class="inline-code">N -> G</span>。
+      </p>
+      <div class="flow" aria-label="论文算法流程">
+        <div class="step">
+          <span class="num">1</span>
+          <strong>电路线性化</strong>
+          <small>把原始电路变成线性小信号网络 N。</small>
+        </div>
+        <div class="step">
+          <span class="num">2</span>
+          <strong>网络归并</strong>
+          <small>合并并联线性元件，减少网络规模。</small>
+        </div>
+        <div class="step">
+          <span class="num">3</span>
+          <strong>N 转 SFG</strong>
+          <small>元件替换、冗余删除、一致性修正、meta-edge 合并。</small>
+        </div>
+        <div class="step">
+          <span class="num">4</span>
+          <strong>参考性能</strong>
+          <small>数值计算原始网络性能与根。</small>
+        </div>
+        <div class="step">
+          <span class="num">5</span>
+          <strong>根聚类</strong>
+          <small>按极点零点分布划分误差关注区域。</small>
+        </div>
+        <div class="step">
+          <span class="num">6-8</span>
+          <strong>预约简与拓扑分析</strong>
+          <small>在图上查找可删除对象与根相关结构。</small>
+        </div>
+        <div class="step">
+          <span class="num">9</span>
+          <strong>误差控制化简</strong>
+          <small>按误差子规格执行图操作，定位零极点。</small>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 22px;">
+        <div class="span-6 figure">
+          <img src="assets/Screenshot 2026-05-12 140404.png" alt="论文中展开后的小信号网络">
+          <figcaption class="caption">论文中的线性小信号网络：器件模型已经展开为电导、电容和受控源。</figcaption>
+        </div>
+        <div class="span-6 figure">
+          <img src="assets/Screenshot 2026-05-12 140410.png" alt="论文中原始信号流图">
+          <figcaption class="caption">论文中的初始 SFG：每个节点拆成电压顶点和电流顶点，支路表达成有向边。</figcaption>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-6 card">
+          <h3>论文第 3 步内部细分</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>步骤</th>
+                <th>含义</th>
+                <th>我们当前实现情况</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>3.1 替换网络元件</td>
+                <td>把 R/C/g/V/I 等元件变成图上的有向边。</td>
+                <td>已实现主要线性元件和四类受控源的初步 stamp。</td>
+              </tr>
+              <tr>
+                <td>3.2 冗余删除与一致性修正</td>
+                <td>删除不必要的自环、处理电压源约束、避免方程不一致。</td>
+                <td>已实现接地 AC 电压源、零值电压源 alias、自环吸收和审计记录；浮置电压源仍需进一步完善。</td>
+              </tr>
+              <tr>
+                <td>3.3 meta-edge 合并</td>
+                <td>把同一对顶点之间的多条边合并成一条总边，并按频率阶次分组。</td>
+                <td>已实现 <span class="inline-code">lump_meta_edges()</span> 和 <span class="inline-code">order_partitions</span>。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="span-6 figure">
+          <img src="assets/Screenshot 2026-05-12 140415.png" alt="论文中约简后的信号流图">
+          <figcaption class="caption">论文中经过冗余删除与 meta-edge 合并后的 SFG：图结构明显更接近后续化简对象。</figcaption>
+        </div>
+      </div>
+    </section>
+
+    <section id="sfg">
+      <h2>为什么论文要构建信号流图</h2>
+      <div class="grid">
+        <div class="span-4 card accent">
+          <h3>1. 避免直接展开大表达式</h3>
+          <p>
+            完整符号传递函数会快速膨胀。SFG 保留“变量之间的因果边”，让化简先发生在图上，而不是先生成一个巨大多项式。
+          </p>
+        </div>
+        <div class="span-4 card accent">
+          <h3>2. 方便做拓扑化简</h3>
+          <p>
+            图上的边、节点、回路、开环根更容易被定位。论文后续的 root observability、ranking 和 graph operation 都依赖这个结构。
+          </p>
+        </div>
+        <div class="span-4 card accent">
+          <h3>3. 支持误差控制</h3>
+          <p>
+            化简不是随意删项，而是结合数值参考性能、根聚类和误差规格，判断某个图操作是否可接受。
+          </p>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top: 18px;">
+        <strong>一个直观理解：</strong>
+        在 SFG 中，<span class="inline-code">n.v</span> 表示节点电压变量，<span class="inline-code">n.i</span> 表示节点等效注入电流变量。电阻、电容给出导纳边和阻抗边，受控源给出从控制变量到输出电流或电压变量的边。后续的化简就是在这些边和 meta-edge 上进行。
+      </div>
+
+      <div class="grid" style="margin-top: 22px;">
+        <div class="span-6 card accent">
+          <h3>为什么把一个电路节点拆成两个顶点</h3>
+          <p>
+            论文把一个电路节点 <span class="inline-code">n</span> 拆成 <span class="inline-code">n.v</span> 和 <span class="inline-code">n.i</span>，本质上不是把电路物理节点真的拆开，而是把一个节点方程中的两类变量分开表示：<span class="inline-code">n.v</span> 是节点电压顶点，<span class="inline-code">n.i</span> 是节点电流顶点。
+          </p>
+          <pre class="vscode"><code><span class="tok-cmt"># 其他节点电压先形成流入/流出 n 的电流贡献</span>
+<span class="tok-name">i_n</span> <span class="tok-op">=</span> <span class="tok-name">Y_nn</span><span class="tok-name">v_n</span> <span class="tok-op">+</span> <span class="tok-name">Y_n1</span><span class="tok-name">v_1</span> <span class="tok-op">+</span> <span class="tok-name">Y_n2</span><span class="tok-name">v_2</span> <span class="tok-op">+</span> ...
+
+<span class="tok-cmt"># 进一步整理为电流变量到电压变量的关系</span>
+<span class="tok-name">v_n</span> <span class="tok-op">=</span> <span class="tok-name">Z_nn</span><span class="tok-name">i_n</span> <span class="tok-op">+</span> <span class="tok-cmt">其他节点电压的贡献</span>
+<span class="tok-name">Z_nn</span> <span class="tok-op">=</span> <span class="tok-num">1</span> <span class="tok-op">/</span> <span class="tok-name">Y_nn</span></code></pre>
+          <p>
+            这里 <span class="inline-code">Y_nn</span> 是节点自导纳，<span class="inline-code">Y_nk</span> 是其他节点电压通过支路对节点 <span class="inline-code">n</span> 产生的电流贡献。拆分之后，<span class="inline-code">n.i -> n.v</span> 表示“节点电流通过等效阻抗形成节点电压”，<span class="inline-code">m.v -> n.i</span> 表示“节点 m 的电压通过某个导纳支路，对节点 n 的 KCL 电流产生贡献”。
+          </p>
+        </div>
+
+        <div class="span-6 card">
+          <h3>与基尔霍夫电流定律的关系</h3>
+          <p>
+            对普通节点 <span class="inline-code">n</span>，KCL 可以写成“所有流入节点 n 的电流之和为 0”。如果把其他节点电压对节点 n 的电流贡献整理出来，就可以把节点方程拆成两个方向明确的关系：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">Y_n</span><span class="tok-name">v_n</span> <span class="tok-op">=</span> <span class="tok-name">i_n</span>
+<span class="tok-name">v_n</span> <span class="tok-op">=</span> <span class="tok-op">(</span><span class="tok-num">1</span> <span class="tok-op">/</span> <span class="tok-name">Y_n</span><span class="tok-op">)</span><span class="tok-name">i_n</span></code></pre>
+          <p>
+            因此 <span class="inline-code">n.v</span> 和 <span class="inline-code">n.i</span> 的关系，其实就是把 KCL 方程拆成：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">其他电压变量</span> <span class="tok-op">-></span> <span class="tok-name">节点电流变量</span> <span class="tok-op">-></span> <span class="tok-name">节点电压变量</span></code></pre>
+          <p>
+            这就是 SFG 和基尔霍夫电流定律的内在联系。它不会改变电路方程，只是把 MNA 或节点分析中的代数关系改写成图上的有向边。
+          </p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-6 card">
+          <h3>信号流图中的两类边</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>边类型</th>
+                <th>数学意义</th>
+                <th>电路意义</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">n.i -> n.v</span></td>
+                <td><span class="inline-code">v_n = Z_n i_n</span></td>
+                <td>同一节点内部的自阻抗边，其中 <span class="inline-code">Z_n = 1/Y_n</span>，<span class="inline-code">Y_n</span> 是该节点总自导纳。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">m.v -> n.i</span></td>
+                <td><span class="inline-code">i_n += A v_m</span></td>
+                <td>不同节点之间的导纳、跨导或电容耦合项，表示其他节点电压对节点 n 的 KCL 贡献。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            所以论文中的图结构不是任意规定的，而是直接来自 KCL 的整理形式：跨节点元件先把电压贡献送入某个节点的 KCL 电流变量，即 <span class="inline-code">m.v -> n.i</span>；本节点的总自导纳再取倒数，把电流变量转换成电压变量，即 <span class="inline-code">n.i -> n.v</span>。
+          </p>
+        </div>
+
+        <div class="span-6 card accent">
+          <h3>一个导纳支路如何变成图边</h3>
+          <p>
+            设导纳 <span class="inline-code">Y</span> 接在节点 a 和 b 之间。它在节点方程中会产生两个方向的交叉贡献：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">b.v</span> <span class="tok-op">-></span> <span class="tok-name">a.i</span> : <span class="tok-name">Y</span>
+<span class="tok-name">a.v</span> <span class="tok-op">-></span> <span class="tok-name">b.i</span> : <span class="tok-name">Y</span></code></pre>
+          <p>
+            同时，节点 a 和 b 各自的自导纳会被合并到 <span class="inline-code">a.i -> a.v</span>、<span class="inline-code">b.i -> b.v</span> 的自阻抗边中。这样一个普通支路既保留了节点间耦合，也保留了节点自身负载。
+          </p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-6 card warn">
+          <h3>这样做会不会更复杂</h3>
+          <p>
+            初始图确实更大：原来一个电路节点会变成两个顶点，边数也会增加。但论文的目标不是让初始表示最小，而是让后续化简有明确的操作对象。
+          </p>
+          <p>
+            在完整符号传递函数里，一个电容耦合项可能展开成很多代数项；在 SFG 中，它可能仍然是一条边，例如 <span class="inline-code">net2.v -> net1.i : cx*s</span>。后续算法可以直接评估“删除这条边是否超过误差规格”，这比在巨大多项式里删项更可控。
+          </p>
+        </div>
+
+        <div class="span-6 card">
+          <h3>图结构的优势</h3>
+          <ul>
+            <li>局部性强：一条边通常对应一个明确元件或一组并联合并后的 meta-edge。</li>
+            <li>可排序：可以根据频率阶次、候选根、数值误差贡献给边排序。</li>
+            <li>可删除：化简操作可以落实为删边、合并边、删节点等图操作。</li>
+            <li>可追踪：每个图操作都能追溯回原电路中的某个元件或参数。</li>
+            <li>适合误差控制：删除某条边后可以数值比较参考响应和简化响应。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-6 card warn">
+          <h3>理想电压源类元件为什么要特别小心</h3>
+          <p>
+            普通电阻、电容、跨导源大多可以写成 <span class="inline-code">i = Yv</span>，天然适合生成 <span class="inline-code">v -> i</span> 边。但理想电压源、VCVS 和 CCVS 给出的是电压约束：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">v_a</span> <span class="tok-op">-</span> <span class="tok-name">v_b</span> <span class="tok-op">=</span> <span class="tok-name">V_s</span></code></pre>
+          <p>
+            它们不能直接写成导纳关系，也会引入未知支路电流。如果是接地输入电压源，可以直接驱动一个电压顶点；如果是小信号为零的供电源，可以做 AC ground 或节点合并；如果是浮置电压源或电压源链，就需要 supernode、MNA 辅助电流变量或论文中的 consistency correction。
+          </p>
+        </div>
+
+        <div class="span-6 card accent">
+          <h3>这一步对后续算法的意义</h3>
+          <p>
+            节点拆分和两类边的设计，让后续算法可以直接在图上操作“变量关系”，而不是在完整传递函数展开后再处理多项式项。meta-edge 合并、order partition、候选开环根识别和误差控制删边，都依赖这种结构化表示。
+          </p>
+          <p>
+            因此，SFG 的初始规模变大并不是缺点，而是为了换取后续化简过程中的可定位、可排序、可验证。
+          </p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 22px;">
+        <div class="span-6 card">
+          <h3>构建 SFG 的基本方法</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>电路对象</th>
+                <th>图上的表达</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>普通电路节点 n</td>
+                <td>拆成 <span class="inline-code">n.v</span> 和 <span class="inline-code">n.i</span> 两类变量。前者是节点电压，后者是 KCL 中的等效注入电流。</td>
+              </tr>
+              <tr>
+                <td>R/C 等双端支路</td>
+                <td>先转成导纳 <span class="inline-code">Y(s)</span>，再产生节点间的导纳边，以及从电流变量到电压变量的阻抗边。</td>
+              </tr>
+              <tr>
+                <td>独立电压源</td>
+                <td>如果一端接地且作为输入源，直接驱动对应 <span class="inline-code">*.v</span>；如果小信号为 0，则进行 AC ground 或节点合并。</td>
+              </tr>
+              <tr>
+                <td>VCCS / MOS gm</td>
+                <td>输出是电流，所以从控制电压顶点连到输出节点的 <span class="inline-code">*.i</span>。</td>
+              </tr>
+              <tr>
+                <td>VCVS / CCVS</td>
+                <td>输出是电压约束，所以边直接连到输出正端的 <span class="inline-code">*.v</span>，并需要做电压源链一致性修正。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="span-6 card">
+          <h3>为什么要按这种方式构图</h3>
+          <p>
+            这种构图方法不是为了画图好看，而是为了让每条边都对应一个明确的电路方程项。导纳边对应 KCL 中“电压导致电流”的项，阻抗边对应“注入电流导致节点电压”的局部关系，受控源边对应控制变量对输出变量的贡献。
+          </p>
+          <p>
+            这样做的好处是后续可以在图上做局部操作：合并同起点同终点的边，按 <span class="inline-code">s</span> 的阶次拆分 meta-edge，识别某条边引入的候选根，再判断删除或近似这条边会给整体响应带来多少误差。
+          </p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-7 figure">
+          <img src="assets/Screenshot 2026-05-12 150819.png" alt="论文中网络元件到信号流图的转换表">
+          <figcaption class="caption">
+            论文 Fig.3：网络元件到信号流图的转换表。上半部分给出双端导纳元件的图等效；下半部分给出 VCCS、VCVS、CCCS、CCVS 的图等效。这个表正是 <span class="inline-code">SLiCAPsfg.py</span> 中各类 <span class="inline-code">_stamp_*</span> 函数的理论依据。
+          </figcaption>
+        </div>
+        <div class="span-5 card">
+          <h3>受控源图化的关键判断</h3>
+          <p>
+            四类受控源的差别不在于“是不是受控”，而在于输出变量是电流还是电压。输出为电流时，边进入输出节点的 <span class="inline-code">*.i</span>；输出为电压时，边进入输出正端的 <span class="inline-code">*.v</span>。
+          </p>
+          <p>
+            控制量也需要区分：电压控制源从控制端电压顶点 <span class="inline-code">*.v</span> 出发；电流控制源需要先定义辅助电流变量，再从该电流变量出发。否则控制支路方向一旦约定错误，图上的符号也会反。
+          </p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-6 card accent">
+          <h3>同节点自导纳吸收到自阻抗的电路含义</h3>
+          <p>
+            在节点 n 上，某些元件会产生从 <span class="inline-code">n.v</span> 到 <span class="inline-code">n.i</span> 的自反馈边，含义是“节点电压自身通过某个导纳产生节点电流”。例如接地电容给出 <span class="inline-code">i = sC · v</span>，接地电导给出 <span class="inline-code">i = G · v</span>。
+          </p>
+          <p>
+            如果图里同时存在 <span class="inline-code">n.i -> n.v</span> 的阻抗边和 <span class="inline-code">n.v -> n.i</span> 的自导纳边，就形成同一节点内部的代数自环。论文中的冗余删除会把这个自环直接求解掉，把局部导纳并入等效阻抗。代码中的形式是：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">Z_new</span> <span class="tok-op">=</span> <span class="tok-num">1</span> <span class="tok-op">/</span> <span class="tok-op">(</span><span class="tok-num">1</span> <span class="tok-op">/</span> <span class="tok-name">Z_old</span> <span class="tok-op">-</span> <span class="tok-name">Y_loop</span><span class="tok-op">)</span></code></pre>
+          <p>
+            符号中的正负号由 stamp 约定决定。直观上，这一步等价于在 KCL 中先把节点自身的并联导纳合并成总导纳，再用总导纳的倒数作为 <span class="inline-code">n.i -> n.v</span> 的等效阻抗边。
+          </p>
+        </div>
+
+        <div class="span-6 card warn">
+          <h3>一致性修正为什么必要</h3>
+          <p>
+            理想电压源不能像电阻那样写成 <span class="inline-code">I = YV</span>，它给出的是电压约束。如果机械地把每个电压源都当成普通支路 stamp，就会漏掉电压源支路电流，或者让两个本应相等的小信号节点被错误地当成独立节点。
+          </p>
+          <p>
+            例如 <span class="inline-code">VDD VDD 0 V value=0</span> 在小信号分析里应当是 AC ground。如果不把 <span class="inline-code">VDD</span> 合并到 <span class="inline-code">0</span>，负载电阻 <span class="inline-code">Rl VDD net2</span> 会被误认为连接到一个悬空节点，导致 <span class="inline-code">net2</span> 的 KCL 缺少正确的 <span class="inline-code">Gl</span> 负载项。
+          </p>
+          <p>
+            再例如浮置输入源 <span class="inline-code">Vin a b V value={Vin}</span>，只画 <span class="inline-code">b.v -> a.v</span> 和 <span class="inline-code">Vin.src -> a.v</span> 还不够，因为电压源中的未知电流仍然参与 a、b 两个节点的 KCL。后续需要用 MNA 辅助电流变量或 supernode 才能严格闭合方程。
+          </p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-5 card warn">
+          <h3>反向串联电压源的典型问题</h3>
+          <p>
+            论文 Fig.4 展示了两个电压源反向串联时的图不一致问题。若直接逐个套用 VCVS stamp，会把多个电压约束都指向同一个电压顶点，表面上得到了一组图边，但这些边没有统一处理电压源链的方向关系。
+          </p>
+          <p>
+            后果是图方程可能与原电路约束不等价：有的节点电压被重复约束，有的中间电压源支路电流没有进入 KCL，最终会影响传递函数符号和极零点位置。因此论文强调冗余删除后还要做 consistency correction。
+          </p>
+        </div>
+        <div class="span-7 figure">
+          <img src="assets/Screenshot 2026-05-12 150836.png" alt="论文中反向串联电压源导致的图不一致">
+          <figcaption class="caption">
+            论文 Fig.4：反向串联电压源导致的图不一致。这个例子说明，电压型约束不能只靠局部 stamp 机械生成边，还必须统一电压源链方向并修正图方程。
+          </figcaption>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-6 card">
+          <h3>Fig.4 中一致性修正的做法</h3>
+          <p>
+            图中两个受控电压源反向串联。原始电路给出的不是“两个贡献相加到同一个节点”，而是两个独立的电压约束：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">V_v</span> <span class="tok-op">-</span> <span class="tok-name">V_u</span> <span class="tok-op">=</span> <span class="tok-name">A</span><span class="tok-op">(</span><span class="tok-name">V_a</span> <span class="tok-op">-</span> <span class="tok-name">V_b</span><span class="tok-op">)</span>
+<span class="tok-name">V_v</span> <span class="tok-op">-</span> <span class="tok-name">V_w</span> <span class="tok-op">=</span> <span class="tok-name">B</span><span class="tok-op">(</span><span class="tok-name">V_c</span> <span class="tok-op">-</span> <span class="tok-name">V_d</span><span class="tok-op">)</span></code></pre>
+          <p>
+            如果机械 stamp，两组边都会指向 <span class="inline-code">v.v</span>，图方程会被误读为：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">V_v</span> <span class="tok-op">=</span> <span class="tok-name">V_u</span> <span class="tok-op">+</span> <span class="tok-name">A</span><span class="tok-op">(</span><span class="tok-name">V_a</span> <span class="tok-op">-</span> <span class="tok-name">V_b</span><span class="tok-op">)</span>
+    <span class="tok-op">+</span> <span class="tok-name">V_w</span> <span class="tok-op">+</span> <span class="tok-name">B</span><span class="tok-op">(</span><span class="tok-name">V_c</span> <span class="tok-op">-</span> <span class="tok-name">V_d</span><span class="tok-op">)</span>   <span class="tok-cmt"># 错误</span></code></pre>
+        </div>
+
+        <div class="span-6 card accent">
+          <h3>修正后的等价图方程</h3>
+          <p>
+            一致性修正会先选定电压源链方向，例如沿 <span class="inline-code">u -> v -> w</span> 写方程。第一个源仍然定义 <span class="inline-code">V_v</span>，第二个源改写为定义 <span class="inline-code">V_w</span>：
+          </p>
+          <pre class="vscode"><code><span class="tok-name">V_v</span> <span class="tok-op">=</span> <span class="tok-name">V_u</span> <span class="tok-op">+</span> <span class="tok-name">A</span><span class="tok-op">(</span><span class="tok-name">V_a</span> <span class="tok-op">-</span> <span class="tok-name">V_b</span><span class="tok-op">)</span>
+<span class="tok-name">V_w</span> <span class="tok-op">=</span> <span class="tok-name">V_v</span> <span class="tok-op">-</span> <span class="tok-name">B</span><span class="tok-op">(</span><span class="tok-name">V_c</span> <span class="tok-op">-</span> <span class="tok-name">V_d</span><span class="tok-op">)</span></code></pre>
+          <p>
+            对应的 SFG 边就从“都指向 <span class="inline-code">v.v</span>”变成“第一组指向 <span class="inline-code">v.v</span>，第二组指向 <span class="inline-code">w.v</span>”。这样每个电压顶点只由一个一致方向的约束定义，图方程才和原电路约束等价。
+          </p>
+        </div>
+      </div>
+
+      <div class="callout danger" style="margin-top: 18px;">
+        <strong>当前代码状态：</strong>
+        现有 <span class="inline-code">SLiCAPsfg.py</span> 只实现了部分一致性处理：<span class="inline-code">_voltage_source_aliases()</span> 会合并非输入的零值电压源，<span class="inline-code">_voltage_driven_nodes()</span> 会让接地输入电压源只保留电压顶点，<span class="inline-code">_store_voltage_source()</span> 会把浮置独立电压源记录为 <span class="inline-code">VoltageConstraint</span>。但论文 Fig.4 这种“电压源链方向统一并重写约束边”的完整 consistency correction 还没有实现；目前对于复杂电压源链只能记录约束或警告，不能保证已经得到最终等价的 SFG。
+      </div>
+    </section>
+
+    <section id="scope">
+      <h2>4. 我们目前已经完成的能力</h2>
+      <div class="metric-row">
+        <div class="metric">
+          <b>.cir</b>
+          <span>读取 SLiCAP 网表</span>
+        </div>
+        <div class="metric">
+          <b>N</b>
+          <span>得到展平小信号网络</span>
+        </div>
+        <div class="metric">
+          <b>G</b>
+          <span>构建信号流图</span>
+        </div>
+        <div class="metric">
+          <b>audit</b>
+          <span>记录构图审计事件</span>
+        </div>
+        <div class="metric">
+          <b>meta</b>
+          <span>合并 meta-edge</span>
+        </div>
+        <div class="metric">
+          <b>SVG</b>
+          <span>Graphviz 可视化输出</span>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 22px;">
+        <div class="span-6 card">
+          <h3>已实现</h3>
+          <ul>
+            <li>复用 SLiCAP 原有词法、语法分析和模型展开能力，不重新造网表解析器。</li>
+            <li>把 SLiCAP 的电路对象复制成稳定的中间结构 <span class="inline-code">LinearNetwork</span>。</li>
+            <li>根据展平后的 R/C/g/V/I 等线性元件构建 SFG。</li>
+            <li>处理接地独立 AC 电压源：只保留电压顶点，不保留无意义的输入端电流顶点。</li>
+            <li>处理小信号为 0 的非输入电压源：进行 AC ground 或节点 alias。</li>
+            <li>记录 dropped edge、self-loop absorption、voltage alias、meta-edge lump 等审计事件。</li>
+            <li>输出 DOT、SVG、构图审计报告和 meta-edge 报告。</li>
+          </ul>
+        </div>
+        <div class="span-6 card warn">
+          <h3>尚未实现</h3>
+          <ul>
+            <li>完整传递函数求解与零极点自动输出。</li>
+            <li>论文第 4 步以后的数值参考性能、root clustering、error-controlled simplification。</li>
+            <li>浮置理想电压源的严格 KCL 处理。目前记录电压约束，但后续应选择 MNA 辅助电流变量或 supernode 方法。</li>
+            <li>对所有复杂 SLiCAP 器件模型的完备覆盖测试。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <h2>5. demo_2 的完整工作流程</h2>
+      <p class="lead">
+        demo_2 使用一个带 BJT 小信号模型的共射放大器网表。运行 <span class="inline-code">demo.py</span> 后，程序会完成网表展平、SFG 构建、报告导出和 SVG 渲染。
+      </p>
+
+      <div class="grid">
+        <div class="span-6">
+          <h3>demo_2 网表</h3>
+          <pre class="vscode"><code><span class="tok-src">mycircuit</span>
+
+<span class="tok-name">VDD</span> VDD 0 <span class="tok-model">V</span> <span class="tok-param">dc</span>={VDD} <span class="tok-param">value</span>=0
+<span class="tok-name">Vin</span> in 0 <span class="tok-model">V</span> <span class="tok-param">value</span>={Vin}
+
+<span class="tok-name">Rin</span> in net1 <span class="tok-model">R</span> <span class="tok-param">value</span>={1/Gin}
+<span class="tok-name">Rl</span> VDD net2 <span class="tok-model">R</span> <span class="tok-param">value</span>={1/Gl}
+
+<span class="tok-name">Q1</span> net2 net1 0 0 <span class="tok-model">QV</span> <span class="tok-param">gm</span>={gm} <span class="tok-param">go</span>={go}
+   <span class="tok-param">gpi</span>={gpi} <span class="tok-param">cpi</span>={cpi} <span class="tok-param">cbx</span>={cx}
+   <span class="tok-param">cbc</span>={cmu} <span class="tok-param">rb</span>={1/gx}
+
+<span class="tok-name">C1</span> net2 0 <span class="tok-model">C</span> <span class="tok-param">value</span>={Cl}
+
+<span class="tok-src">.source</span> Vin
+<span class="tok-src">.detector</span> V_net2
+<span class="tok-src">.end</span></code></pre>
+        </div>
+        <div class="span-6">
+          <h3>demo.py 核心调用</h3>
+          <pre class="vscode"><code><span class="tok-key">from</span> <span class="tok-name">SLiCAP</span> <span class="tok-key">import</span> <span class="tok-fn">netlist_to_signal_flow_graph</span>
+
+<span class="tok-name">base_dir</span> <span class="tok-op">=</span> <span class="tok-str">r"C:\pr\learning\college\else\sitp_2\SFG methods\demo_2"</span>
+<span class="tok-name">cir_path</span> <span class="tok-op">=</span> <span class="tok-name">os</span>.<span class="tok-name">path</span>.<span class="tok-fn">join</span>(<span class="tok-name">base_dir</span>, <span class="tok-str">"circuit.cir"</span>)
+
+<span class="tok-name">net</span>, <span class="tok-name">graph</span> <span class="tok-op">=</span> <span class="tok-fn">netlist_to_signal_flow_graph</span>(<span class="tok-name">cir_path</span>)
+
+<span class="tok-fn">print</span>(<span class="tok-name">net</span>.<span class="tok-fn">summary</span>())
+<span class="tok-fn">print</span>(<span class="tok-name">graph</span>.<span class="tok-fn">summary</span>())
+
+<span class="tok-name">dot</span> <span class="tok-op">=</span> <span class="tok-name">graph</span>.<span class="tok-fn">to_dot</span>(<span class="tok-param">style</span><span class="tok-op">=</span><span class="tok-str">"default"</span>)
+<span class="tok-name">svg</span> <span class="tok-op">=</span> <span class="tok-name">graph</span>.<span class="tok-fn">render_dot</span>(
+    <span class="tok-name">os</span>.<span class="tok-name">path</span>.<span class="tok-fn">join</span>(<span class="tok-name">base_dir</span>, <span class="tok-str">"sfg_default"</span>),
+    <span class="tok-param">format</span><span class="tok-op">=</span><span class="tok-str">"svg"</span>,
+    <span class="tok-param">style</span><span class="tok-op">=</span><span class="tok-str">"default"</span>,
+)</code></pre>
+        </div>
+      </div>
+
+      <div class="timeline" style="margin-top: 22px;">
+        <div class="timeline-item">
+          <div class="tag">步骤 A</div>
+          <div class="card">
+            <h3>SLiCAP 读取并展平网表</h3>
+            <p>
+              <span class="inline-code">netlist_to_signal_flow_graph()</span> 先调用 <span class="inline-code">flatten_netlist()</span>。后者复用 SLiCAP 的 <span class="inline-code">_checkCircuit()</span>，完成网表第一行标题读取、注释处理、模型参数检查、器件模型展开和层次展平。
+            </p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tag">步骤 B</div>
+          <div class="card">
+            <h3>生成中间网络模型 N</h3>
+            <p>
+              <span class="inline-code">network_from_circuit()</span> 把 SLiCAP 内部 <span class="inline-code">circuit</span> 对象复制成 <span class="inline-code">LinearNetwork</span>。这样后续构图代码不直接依赖 SLiCAP 内部可变对象。
+            </p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tag">步骤 C</div>
+          <div class="card">
+            <h3>预处理电压源和节点</h3>
+            <p>
+              <span class="inline-code">build_signal_flow_graph()</span> 会先识别 <span class="inline-code">.source Vin</span>、零值电压源和接地 AC 电压源。demo_2 中 <span class="inline-code">VDD value=0</span> 在小信号下等效 AC ground，因此 <span class="inline-code">VDD -> 0</span> 被记录为 voltage alias；<span class="inline-code">Vin in 0</span> 是输入电压源，因此 <span class="inline-code">in</span> 只保留 <span class="inline-code">in.v</span>。
+            </p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tag">步骤 D</div>
+          <div class="card">
+            <h3>逐元件 stamp 到 SFG</h3>
+            <p>
+              <span class="inline-code">_stamp_element()</span> 根据元件模型调用不同 helper。电阻和电容进入 <span class="inline-code">_stamp_bilateral_branch()</span>，压控电流源进入 <span class="inline-code">_stamp_vccs()</span>，电压源进入 <span class="inline-code">_store_voltage_source()</span>。每条边都通过 <span class="inline-code">add_contribution()</span> 进入图结构。
+            </p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tag">步骤 E</div>
+          <div class="card">
+            <h3>冗余删除与 meta-edge 合并</h3>
+            <p>
+              <span class="inline-code">eliminate_self_loops()</span> 把同节点自导纳吸收到自阻抗表达式中，<span class="inline-code">lump_meta_edges()</span> 把相同起点和终点的边合并，并计算 <span class="inline-code">order_partitions</span>。这一步对应论文第 3.2 和 3.3。
+            </p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tag">步骤 F</div>
+          <div class="card">
+            <h3>导出图和报告</h3>
+            <p>
+              <span class="inline-code">to_dot()</span> 输出 Graphviz DOT 文本，<span class="inline-code">render_dot()</span> 调用 Graphviz 生成 SVG，<span class="inline-code">audit_report()</span> 和 <span class="inline-code">meta_edge_report()</span> 输出可检查的 Markdown 报告。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="code">
+      <h2>6. SLiCAPsfg.py 的代码结构</h2>
+      <p class="lead">
+        <span class="inline-code">SLiCAPsfg.py</span> 的职责很明确：输入已经展平的 <span class="inline-code">LinearNetwork</span>，输出 <span class="inline-code">SignalFlowGraph</span>。它不负责网表语法解析，也不负责后续完整的误差控制化简。
+      </p>
+
+      <div class="grid">
+        <div class="span-6 card">
+          <h3>核心数据结构</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th>作用</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">GraphVertex</span></td>
+                <td>图中的顶点，例如 <span class="inline-code">net2.v</span>、<span class="inline-code">net2.i</span>、<span class="inline-code">Vin.src</span>。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">GraphContribution</span></td>
+                <td>单个元件贡献的一条原始边，保留 refdes、kind 和 symbolic value。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">MetaEdge</span></td>
+                <td>多个原始 contribution 合并后的总边，用于后续频率阶次分析。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">SourceDrive</span></td>
+                <td>记录独立源如何驱动图中的电压或电流顶点。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">VoltageConstraint</span></td>
+                <td>记录浮置电压源或电压型约束，后续可扩展为 MNA 或 supernode 处理。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">DeferredElement</span></td>
+                <td>记录暂时无法 stamp 的元件，例如电流控制源找不到控制支路引用。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">GraphAuditEvent</span></td>
+                <td>记录构图过程中的创建、丢弃、合并、警告等事件，便于排错和写报告。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">SignalFlowGraph</span></td>
+                <td>最终图对象，包含 vertices、contributions、meta_edges、warnings 和导出方法。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="span-6 card">
+          <h3>主入口函数</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>函数</th>
+                <th>作用</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">netlist_to_signal_flow_graph()</span></td>
+                <td>最高层入口：输入 <span class="inline-code">.cir</span> 路径，返回 <span class="inline-code">(net, graph)</span>。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">build_signal_flow_graph()</span></td>
+                <td>把 <span class="inline-code">LinearNetwork</span> 转成 <span class="inline-code">SignalFlowGraph</span>，负责节点预处理、stamp、自环消除和 meta-edge 合并。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">_stamp_element()</span></td>
+                <td>元件分发器，根据模型类型调用对应 stamp 函数。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">_voltage_source_aliases()</span></td>
+                <td>识别小信号为 0 的非输入电压源，做 AC ground 或节点合并。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">_voltage_driven_nodes()</span></td>
+                <td>识别一端接地的输入电压源，使该节点只创建电压顶点。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-12 card">
+          <h3>SignalFlowGraph 的关键方法</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>方法</th>
+                <th>当前用途</th>
+                <th>报告中可以怎么讲</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">add_vertex_pair()</span></td>
+                <td>给普通节点创建 <span class="inline-code">.v</span> 和 <span class="inline-code">.i</span> 顶点。</td>
+                <td>把一个电路节点拆成“电压变量”和“电流平衡变量”。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">add_source_vertex()</span></td>
+                <td>给独立源创建源信号顶点。</td>
+                <td>输入信号不是普通电路节点，而是图中的已知激励。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">add_aux_current_vertex()</span></td>
+                <td>为 F/H 类型电流控制源创建辅助电流变量。</td>
+                <td>电流控制源必须知道控制支路方向，否则符号会反。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">add_contribution()</span></td>
+                <td>添加元件贡献边，同时检查顶点是否存在。</td>
+                <td>这一步避免图中出现指向不存在变量的隐性错误。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">eliminate_self_loops()</span></td>
+                <td>把自导纳环吸收到等效阻抗边中。</td>
+                <td>对应论文中的冗余删除，让图更接近可分析形式。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">lump_meta_edges()</span></td>
+                <td>合并同起点同终点边，计算总表达式和频率阶次。</td>
+                <td>这是后续 open-loop root、边排序和化简的基础。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">to_dot()</span></td>
+                <td>输出 DOT 文本。</td>
+                <td>便于调试，也便于用 Graphviz 渲染。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">render_dot()</span></td>
+                <td>调用 Python graphviz 包生成 SVG/PNG。</td>
+                <td>把抽象图转成可展示图片。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">audit_report()</span></td>
+                <td>输出构图过程审计。</td>
+                <td>说明每条边为什么存在或为什么被丢弃。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">meta_edge_report()</span></td>
+                <td>输出合并后的边、阶次分区和候选根。</td>
+                <td>连接到论文后续 root-based simplification。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 18px;">
+        <div class="span-6 card">
+          <h3>元件 stamp 的基本规则</h3>
+          <ul>
+            <li>R/C 等双端支路先转成导纳 <span class="inline-code">Y</span>，再给两端 current vertex 添加交叉导纳贡献。</li>
+            <li>普通节点还会有 <span class="inline-code">n.i -> n.v</span> 的阻抗边，相当于把 KCL 电流变量转换成节点电压变量。</li>
+            <li>VCCS 的输出是电流，因此边连到输出节点的 <span class="inline-code">.i</span>。</li>
+            <li>VCVS/CCVS 的输出是电压约束，因此边连到输出正端的 <span class="inline-code">.v</span>。</li>
+            <li>CCCS/CCVS 需要辅助电流变量，方向必须来自控制支路引用。</li>
+          </ul>
+        </div>
+        <div class="span-6 card">
+          <h3>受控源处理原则</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>类型</th>
+                <th>控制量</th>
+                <th>输出量</th>
+                <th>连边位置</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>VCCS</td>
+                <td>电压</td>
+                <td>电流</td>
+                <td><span class="inline-code">*.v -> *.i</span></td>
+              </tr>
+              <tr>
+                <td>VCVS</td>
+                <td>电压</td>
+                <td>电压</td>
+                <td><span class="inline-code">*.v -> *.v</span></td>
+              </tr>
+              <tr>
+                <td>CCCS</td>
+                <td>电流</td>
+                <td>电流</td>
+                <td><span class="inline-code">I_ref -> *.i</span></td>
+              </tr>
+              <tr>
+                <td>CCVS</td>
+                <td>电流</td>
+                <td>电压</td>
+                <td><span class="inline-code">I_ref -> *.v</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="outputs">
+      <h2>7. demo_2 输出结果怎么解读</h2>
+      <div class="grid">
+        <div class="span-5">
+          <p class="lead">
+            运行 demo_2 后，最重要的结果不是只有 SVG 图，还包括构图审计和 meta-edge 报告。这两个报告能解释“图为什么长这样”。
+          </p>
+          <div class="card">
+            <h3>Graph Summary</h3>
+            <table>
+              <tbody>
+                <tr>
+                  <td>vertices</td>
+                  <td>8</td>
+                </tr>
+                <tr>
+                  <td>contributions</td>
+                  <td>21</td>
+                </tr>
+                <tr>
+                  <td>meta_edges</td>
+                  <td>11</td>
+                </tr>
+                <tr>
+                  <td>source_drives</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>voltage_constraints</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>deferred_elements</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>dropped_contributions</td>
+                  <td>2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="span-7 figure">
+          <img src="assets/sfg_default.svg" alt="demo_2 生成的信号流图 SVG">
+          <figcaption class="caption">当前代码生成的 demo_2 SFG。若图片未显示，先在该目录运行 <span class="inline-code">python demo.py</span> 生成 <span class="inline-code">sfg_default.svg</span>。</figcaption>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 22px;">
+        <div class="span-6 card">
+          <h3>终端输出摘要</h3>
+          <pre class="vscode"><code><span class="tok-src">=== Network Summary ===</span>
+Title: mycircuit
+Summary: {'elements': <span class="tok-num">14</span>, 'nodes': <span class="tok-num">6</span>, 'active_nodes': <span class="tok-num">5</span>,
+          'dep_vars': <span class="tok-num">9</span>, 'indep_vars': <span class="tok-num">2</span>, 'controlled': <span class="tok-num">4</span>,
+          'params': <span class="tok-num">12</span>, 'par_defs': <span class="tok-num">0</span>}
+Source: ['Vin', None]
+Detector: ['V_net2', None]
+
+<span class="tok-src">=== Graph Summary ===</span>
+{'vertices': <span class="tok-num">8</span>, 'contributions': <span class="tok-num">21</span>, 'meta_edges': <span class="tok-num">11</span>,
+ 'source_drives': <span class="tok-num">1</span>, 'voltage_constraints': <span class="tok-num">0</span>,
+ 'deferred_elements': <span class="tok-num">0</span>, 'dropped_contributions': <span class="tok-num">2</span>,
+ 'audit_events': <span class="tok-num">53</span>}</code></pre>
+        </div>
+
+        <div class="span-6 card">
+          <h3>展平元件如何理解</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>终端输出</th>
+                <th>含义</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">elements = 14</span></td>
+                <td>原始网表里的 QV 晶体管模型被 SLiCAP 展开成多个小信号元件，因此元素数量增加。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">Cbc_Q1, Cbx_Q1, Cpi_Q1</span></td>
+                <td>对应晶体管模型中的结电容和跨接电容，后续会产生 <span class="inline-code">sC</span> 形式的导纳边。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">Gm_Q1, Go_Q1, Gpi_Q1</span></td>
+                <td>对应受控源、输出电导和输入电导；其中 <span class="inline-code">Gm_Q1</span> 最终形成 <span class="inline-code">-gm</span> 的跨导边。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">Rb_Q1 value=1/gx</span></td>
+                <td>基区串联电阻被转成等效导纳 <span class="inline-code">gx</span>，连接 <span class="inline-code">net1</span> 和内部节点 <span class="inline-code">1_Q1</span>。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">VDD value=0</span></td>
+                <td>小信号下被当作 AC ground，因此 <span class="inline-code">Rl</span> 对输出节点贡献 <span class="inline-code">Gl</span> 负载。</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">Vin value=Vin</span></td>
+                <td>由 <span class="inline-code">.source Vin</span> 指定为输入源，最终生成 <span class="inline-code">Vin.src -> in.v</span>。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 18px;">
+        <h3>DOT 输出对应的图结构</h3>
+        <p>
+          终端中的 DOT 文本就是 SVG 的源描述。demo_2 的核心边可以概括为：输入源驱动 <span class="inline-code">in.v</span>，输入网络驱动 <span class="inline-code">net1.i</span>，晶体管内部节点 <span class="inline-code">1_Q1</span> 和输出节点 <span class="inline-code">net2</span> 通过 <span class="inline-code">gx</span>、<span class="inline-code">gm</span>、<span class="inline-code">cmu*s</span>、<span class="inline-code">cx*s</span> 相互耦合。
+        </p>
+        <div class="grid" style="margin: 14px 0 18px;">
+          <div class="span-7 figure">
+            <img src="assets/Screenshot 2026-05-12 140404.png" alt="demo_2 对应的小信号等效电路">
+            <figcaption class="caption">
+              demo_2 对应的小信号等效电路。DOT 中的 <span class="inline-code">Gin</span>、<span class="inline-code">gx</span>、<span class="inline-code">gm</span>、<span class="inline-code">cmu*s</span>、<span class="inline-code">cx*s</span>、<span class="inline-code">Gl</span>、<span class="inline-code">Cl*s</span> 都可以在这张电路图中找到对应的物理支路或受控源。
+            </figcaption>
+          </div>
+          <div class="span-5 card">
+            <h3>从电路支路到 DOT 边</h3>
+            <ul>
+              <li><span class="inline-code">Rin</span> 对应输入导纳 <span class="inline-code">Gin</span>，形成 <span class="inline-code">in.v -> net1.i</span>。</li>
+              <li><span class="inline-code">Rb_Q1</span> 对应 <span class="inline-code">gx</span>，连接 <span class="inline-code">net1</span> 和 <span class="inline-code">1_Q1</span>。</li>
+              <li><span class="inline-code">Gm_Q1</span> 和 <span class="inline-code">Cbc_Q1</span> 合并到 <span class="inline-code">1_Q1.v -> net2.i</span>，得到 <span class="inline-code">cmu*s - gm</span>。</li>
+              <li><span class="inline-code">Rl</span>、<span class="inline-code">C1</span>、<span class="inline-code">Go_Q1</span> 等输出端并联项合并到 <span class="inline-code">net2.i -> net2.v</span> 的等效阻抗。</li>
+            </ul>
+          </div>
+        </div>
+        <pre class="vscode"><code><span class="tok-name">Vin.src</span> <span class="tok-op">-></span> <span class="tok-name">in.v</span>     [label=<span class="tok-str">"1"</span>]
+<span class="tok-name">in.v</span>    <span class="tok-op">-></span> <span class="tok-name">net1.i</span>   [label=<span class="tok-str">"Gin"</span>]
+<span class="tok-name">net1.i</span>  <span class="tok-op">-></span> <span class="tok-name">net1.v</span>   [label=<span class="tok-str">"1/(Gin + cx*s + gx)"</span>]
+<span class="tok-name">1_Q1.i</span>  <span class="tok-op">-></span> <span class="tok-name">1_Q1.v</span>   [label=<span class="tok-str">"1/(cmu*s + cpi*s + gpi + gx)"</span>]
+<span class="tok-name">1_Q1.v</span>  <span class="tok-op">-></span> <span class="tok-name">net2.i</span>   [label=<span class="tok-str">"cmu*s - gm"</span>]
+<span class="tok-name">net2.i</span>  <span class="tok-op">-></span> <span class="tok-name">net2.v</span>   [label=<span class="tok-str">"1/(Cl*s + Gl + cmu*s + cx*s + go)"</span>]</code></pre>
+      </div>
+
+      <details class="details-block">
+        <summary>展开查看 demo_2 的完整终端输出</summary>
+        <pre class="vscode"><code>=== Network Summary ===
+Title: mycircuit
+Summary: {'elements': 14, 'nodes': 6, 'active_nodes': 5, 'dep_vars': 9, 'indep_vars': 2, 'controlled': 4, 'params': 12, 'par_defs': 0}
+Source: ['Vin', None]
+Detector: ['V_net2', None]
+
+=== Flattened Elements ===
+C1 C ('net2', '0') {'value': Cl, 'vinit': 0}
+Cbc_Q1 C ('1_Q1', 'net2') {'value': cmu, 'vinit': 0}
+Cbx_Q1 C ('net1', 'net2') {'value': cx, 'vinit': 0}
+Cpi_Q1 C ('1_Q1', '0') {'value': cpi, 'vinit': 0}
+Cs_Q1 C ('net2', '0') {'value': 0, 'vinit': 0}
+Gbc_Q1 g ('1_Q1', 'net2', '1_Q1', 'net2') {'value': 0}
+Gm_Q1 g ('net2', '0', '1_Q1', '0') {'value': gm}
+Go_Q1 g ('net2', '0', 'net2', '0') {'value': go}
+Gpi_Q1 g ('1_Q1', '0', '1_Q1', '0') {'value': gpi}
+Rb_Q1 r ('net1', '1_Q1') {'value': 1/gx, 'dcvar': 0, 'noisetemp': 0, 'noiseflow': 0, 'dcvarlot': 0}
+Rin R ('in', 'net1') {'value': 1/Gin, 'dcvar': 0, 'noisetemp': 0, 'noiseflow': 0, 'dcvarlot': 0}
+Rl R ('VDD', 'net2') {'value': 1/Gl, 'dcvar': 0, 'noisetemp': 0, 'noiseflow': 0, 'dcvarlot': 0}
+VDD V ('VDD', '0') {'dc': VDD, 'value': 0, 'dcvar': 0, 'noise': 0}
+Vin V ('in', '0') {'value': Vin, 'dc': 0, 'dcvar': 0, 'noise': 0}
+
+=== Graph Summary ===
+{'vertices': 8, 'contributions': 21, 'meta_edges': 11, 'source_drives': 1, 'voltage_constraints': 0, 'deferred_elements': 0, 'dropped_contributions': 2, 'audit_events': 53}
+
+=== Exporting Reports ===
+Saved: C:\pr\learning\college\else\sitp_2\SFG methods\demo_2\sfg_default.dot
+Saved: C:\pr\learning\college\else\sitp_2\SFG methods\demo_2\sfg_audit.md
+Saved: C:\pr\learning\college\else\sitp_2\SFG methods\demo_2\sfg_meta_edges.md
+
+=== Exporting SVGs ===
+Saved: C:\pr\learning\college\else\sitp_2\SFG methods\demo_2\sfg_default.svg</code></pre>
+      </details>
+
+      <div class="grid" style="margin-top: 22px;">
+        <div class="span-6 card">
+          <h3>audit_report() 中值得展示的点</h3>
+          <ul>
+            <li><span class="inline-code">Voltage aliases: VDD -> 0</span>，说明 DC 供电在小信号下被并入交流地。</li>
+            <li><span class="inline-code">in.v</span> 被创建，但 <span class="inline-code">in.i</span> 被跳过，说明接地输入电压源被视作已知电压激励。</li>
+            <li>来自 <span class="inline-code">Rin</span> 的两条连接到 <span class="inline-code">in.i</span> 的 contribution 被丢弃，因为该电流顶点不存在。这不是静默错误，而是明确记录在审计报告中。</li>
+            <li>自环被吸收后，<span class="inline-code">net2.i -> net2.v</span> 变成包含 <span class="inline-code">Cl</span>、<span class="inline-code">Gl</span>、<span class="inline-code">cmu</span>、<span class="inline-code">cx</span>、<span class="inline-code">go</span> 的等效阻抗。</li>
+          </ul>
+        </div>
+        <div class="span-6 card">
+          <h3>meta_edge_report() 中值得展示的点</h3>
+          <pre class="vscode"><code><span class="tok-name">1_Q1.v</span> <span class="tok-op">-></span> <span class="tok-name">net2.i</span>
+value: <span class="tok-str">cmu*s - gm</span>
+order <span class="tok-num">0</span>: <span class="tok-str">-gm</span>
+order <span class="tok-num">1</span>: <span class="tok-str">cmu*s</span>
+candidate open-loop root: <span class="tok-str">gm/cmu</span>
+
+<span class="tok-name">net2.i</span> <span class="tok-op">-></span> <span class="tok-name">net2.v</span>
+value: <span class="tok-str">1/(Cl*s + Gl + cmu*s + cx*s + go)</span>
+
+<span class="tok-name">net1.i</span> <span class="tok-op">-></span> <span class="tok-name">net1.v</span>
+value: <span class="tok-str">1/(Gin + cx*s + gx)</span></code></pre>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top: 18px;">
+        meta-edge 报告已经开始出现论文后续需要的“频率阶次分区”和“候选开环根”。这说明当前原型虽然还没做完整 root clustering，但数据结构已经在为下一阶段服务。
+      </div>
+    </section>
+
+    <section id="limits">
+      <h2>8. 当前技术边界与下一步</h2>
+      <div class="grid">
+        <div class="span-6 card warn">
+          <h3>需要谨慎说明的地方</h3>
+          <ul>
+            <li>当前图构建不是最终算法，只是论文复杂度约简流程的前端部分。</li>
+            <li>浮置理想电压源如果只画电压约束，会缺少该电压源支路电流对 KCL 的贡献。严格做法需要 MNA 辅助电流变量，或者使用 supernode 合并节点方程。</li>
+            <li>目前的 candidate open-loop root 只是局部 meta-edge 级别的启发式信息，不等价于最终电路极点零点。</li>
+            <li>受控源方向和电压源链一致性仍需要更多固定测试覆盖。</li>
+          </ul>
+        </div>
+        <div class="span-6 card accent">
+          <h3>下一阶段建议</h3>
+          <ul>
+            <li>先补齐浮置电压源：在 MNA 辅助电流变量和 supernode 两种方案中选择一种作为主实现。</li>
+            <li>基于 demo 固定测试集建立回归测试，确保每次修改后 SVG、audit 和 meta-edge 变化可解释。</li>
+            <li>实现从 SFG 到传递函数的最小可运行路径，先服务单输入单输出线性电路。</li>
+            <li>再进入论文第 4-9 步：数值参考性能、root clustering、ranking、误差控制删边。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top: 18px;">
+        当前阶段可以总结为：我们已经把 SLiCAP 的网表解析和器件展开能力接到了论文所需的 SFG 前端，并建立了可视化和审计机制。下一步要把图从可展示推进到可求解、可化简。
+      </div>
+    </section>
+
+    <section id="appendix">
+      <h2>附录：报告时可用的一句话解释</h2>
+      <ul class="two-col-list">
+        <li><strong>线性化网络 N：</strong> 原电路在工作点附近的小信号等效网络，由电导、电容和受控源组成。</li>
+        <li><strong>信号流图 G：</strong> 用有向边表示变量之间关系的图模型，方便做拓扑分析。</li>
+        <li><strong>电压顶点：</strong> <span class="inline-code">n.v</span>，表示节点 n 的小信号电压。</li>
+        <li><strong>电流顶点：</strong> <span class="inline-code">n.i</span>，表示节点 n 的 KCL 注入电流变量。</li>
+        <li><strong>source vertex：</strong> 输入源的已知激励顶点，例如 <span class="inline-code">Vin.src</span>。</li>
+        <li><strong>meta-edge：</strong> 多条同起点、同终点边合并后的总边。</li>
+        <li><strong>order partition：</strong> 把 meta-edge 表达式按拉普拉斯变量 <span class="inline-code">s</span> 的阶次分组。</li>
+        <li><strong>自环吸收：</strong> 把节点自身的导纳环转换进等效阻抗边，减少冗余边。</li>
+        <li><strong>一致性修正：</strong> 处理电压源、约束方向和节点合并，保证图方程和原电路方程一致。</li>
+        <li><strong>审计报告：</strong> 记录构图过程，让每条边的产生、合并或丢弃都可追踪。</li>
+      </ul>
+    </section>
+
+    <footer class="footer">
+      本 HTML 报告为离线单文件页面，图片使用 demo_2 目录下的相对路径。建议使用 Edge / Chrome 打开并全屏展示。
+    </footer>
+  </main>
+</body>
+</html>

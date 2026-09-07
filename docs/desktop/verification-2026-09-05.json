@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-09-05",
+  "integration_baseline": "731729513ef7daa6eef795e974e9dd34fd38a270",
+  "integration_code_commit": "d3a3bfc94171f8fe5fad7a30feb599fd8843a31e",
+  "development_wheel_sha256": "0883967abf487a736f6ec52603ec8493b63df19fd602d4b24a4da913f8eb8193",
+  "algorithm_commit": "0800212e91d80b319c8189cc0abf8fbed65db2e0",
+  "versions": {
+    "python": "3.12.14",
+    "SLiCAP": "5.2.1",
+    "sfg-prototype": "0.2.0",
+    "PySide6": "6.11.2",
+    "sympy": "1.14.0",
+    "numpy": "2.5.2",
+    "katex_assets": "0.16.22"
+  },
+  "tests": {
+    "integration": {"passed": 32, "skipped": 1, "failed": 0, "errors": 0},
+    "algorithm_baseline": {"passed": 52, "skipped": 0, "failed": 0, "errors": 0},
+    "vision": "deferred_by_user",
+    "windows_native_rc": {"pole_rad_s": -1000.0, "katex_formulas": 2, "cancel_then_restart": true}
+  },
+  "demo_2_numeric": {
+    "input_sha256": "9490fb1f51da5be1e9bda9c18859b51b8945b518f56ea1fd1c282cebf5743ac4",
+    "elapsed_seconds": 194.718,
+    "performance_benchmark": false,
+    "accepted_steps": 21,
+    "reference_poles_rad_s": [-2096.8260516737355, -217629.06233693848, -85714397821.8667],
+    "reference_zeros_rad_s": [39832835.22539139, -9563777692.368248],
+    "frequency_results": [
+      {"cluster": 1, "hz": [10, 3399.85017546004], "sampled_max_magnitude_error_db": 0.000336255785150286, "sampled_max_phase_error_deg": 0.00788256333538584},
+      {"cluster": 2, "hz": [3399.85017546004, 468596.65805906], "sampled_max_magnitude_error_db": 0.0588421969897723, "sampled_max_phase_error_deg": 4.194397290967},
+      {"cluster": 3, "hz": [468596.65805906, 98232563.5284219], "sampled_max_magnitude_error_db": 0.0894209283657403, "sampled_max_phase_error_deg": 4.26625315506774},
+      {"cluster": 4, "hz": [98232563.5284219, 100000000000], "sampled_max_magnitude_error_db": 0.0896461122590608, "sampled_max_phase_error_deg": 3.69749666751264}
+    ],
+    "eq24_symbolically_equivalent": true,
+    "all_local_roots_accepted": false,
+    "known_issue": {"cluster": 2, "kind": "pole", "status": "outside_error_limit", "relative_root_error": 0.36490811863343975}
+  },
+  "standalone_exe": "not_built",
+  "clean_windows_installation": "not_tested"
+}
