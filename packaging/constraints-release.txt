@@ -1,0 +1,17 @@
+# Runtime versions used for the verified Windows 0.1.0 build.
+SLiCAP==5.2.1
+PySide6==6.11.2
+fastapi==0.141.1
+graphviz==0.21
+matplotlib==3.11.1
+numpy==2.5.2
+pydantic==2.12.3
+PyYAML==6.0.3
+scipy==1.18.1
+sympy==1.14.0
+httpx==0.28.1
+pytest==8.4.2
+pytest-qt==4.5.0
+nuitka==4.1.1
+ordered-set==4.1.0
+zstandard==0.25.0

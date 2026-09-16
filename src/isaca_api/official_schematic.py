@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +24,22 @@ _ERROR_CODES = {
     "missing value": "official_missing_value",
     "no symbol definition": "official_symbol_missing",
 }
+
+
+def _remove_temporary_tree(path: Path) -> None:
+    """Remove Qt-generated cache files after Windows releases their handles."""
+
+    for attempt in range(7):
+        try:
+            shutil.rmtree(path)
+            return
+        except FileNotFoundError:
+            return
+        except PermissionError:
+            if attempt == 6:
+                shutil.rmtree(path, ignore_errors=True)
+                return
+            time.sleep(0.05 * (2**attempt))
 
 
 def _cli_diagnostics(stderr: str) -> list[Diagnostic]:
@@ -53,7 +71,7 @@ def official_netlist_from_schematic(
     schematic: dict[str, Any],
     work_root: str | Path,
     *,
-    timeout_seconds: float = 45.0,
+    timeout_seconds: float = 120.0,
 ) -> tuple[str | None, list[Diagnostic]]:
     """Generate a netlist by invoking SLiCAP's supported headless CLI."""
 
@@ -71,8 +89,8 @@ def official_netlist_from_schematic(
 
     root = Path(work_root)
     root.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="slicap-sch-", dir=root) as directory:
-        temporary = Path(directory)
+    temporary = Path(tempfile.mkdtemp(prefix="slicap-sch-", dir=root))
+    try:
         schematic_path = temporary / "circuit.slicap_sch"
         netlist_path = temporary / "circuit.cir"
         schematic_path.write_text(json.dumps(schematic, indent=2), encoding="utf-8")
@@ -116,5 +134,6 @@ def official_netlist_from_schematic(
                     )
                 )
             return None, diagnostics
-
         return netlist_path.read_text(encoding="utf-8"), []
+    finally:
+        _remove_temporary_tree(temporary)

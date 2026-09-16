@@ -6,12 +6,16 @@ __pycache__/
 htmlcov/
 
 .venv/
+.venv-build/
 .conda/
 .idea/
 .vscode/
 
 build/
+deployment/
 dist/
+release-staging/
+nuitka-crash-report.xml
 runs/
 artifacts/
 test-runs/

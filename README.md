@@ -28,9 +28,26 @@ SLiCAP 5.2.1 官方 Structured Electronic Design Environment 原理图画布，�
 - 支持 Laplace 传递函数、DC 增益、极零点、MNA、Bode 和噪声等数值结果。
 - 支持 SFG 构建、根聚类、频率子区间、误差受控图操作、局部符号根和报告。
 - 视觉模块接口暂时保留，但根据当前项目决定不纳入本阶段测试与验收。
-- 当前还不是免 Python 的独立 EXE；standalone 安装包属于下一交付阶段。
+- 已提供 Windows x64 standalone 安装包；终端用户无需安装 Python、Conda 或 Graphviz。
+- 第一版安装包不包含视觉模型，也不包含大模型辅助报告。
 
-## 首次安装
+## 使用安装包
+
+下载 `ISACA-Desktop-<版本>-win64-setup.exe` 后直接运行安装器。安装完成后可从
+开始菜单或可选的桌面快捷方式启动 `ISACA Desktop`。程序、Python 3.12、SLiCAP
+5.2.1、Qt 和私有 Graphviz 均由安装包提供，不修改系统 Python 或 PATH。
+
+安装包目前未进行商业代码签名，Windows SmartScreen 可能显示未知发布者提示。
+发布者应同时提供 `release-manifest-<版本>.json`，用户可用以下命令核对 SHA-256：
+
+```powershell
+Get-FileHash .\ISACA-Desktop-<版本>-win64-setup.exe -Algorithm SHA256
+```
+
+项目、分析结果和用户日志保存在用户选择的项目目录及
+`%LOCALAPPDATA%\ISACA`，卸载程序不会删除这些用户数据。
+
+## 从源码开发
 
 只需要克隆这一个仓库。在 PowerShell 中执行：
 
@@ -92,6 +109,21 @@ scripts/             环境检查及可复现实验脚本
 
 该命令检查 Python 3.12、SLiCAP 5.2.1 和关键依赖，并统一运行桌面与算法测试。
 不应提交 `runs/`、缓存、模型权重或 SLiCAP 自动生成的项目输出。
+
+## 构建 Windows 安装包
+
+发布构建固定使用 Python 3.12、SLiCAP 5.2.1、Nuitka 4.1.1 和 Inno Setup 7。
+在已安装 Inno Setup 的 Windows 10/11 x64 开发机上运行：
+
+```powershell
+.\scripts\build-release.ps1 -Version 0.1.0 `
+  -BootstrapPython "C:\path\to\python.exe"
+```
+
+脚本会创建隔离构建环境、运行回归测试、生成 standalone 目录、下载并校验固定版本
+的官方 Graphviz、执行打包 worker 冒烟测试，并在 `dist\` 中生成安装器和发布清单。
+本地重复构建可在确认测试与 standalone 已通过后使用 `-SkipTests` 和
+`-ReuseCompiledStandalone` 缩短时间。
 
 ## 算法边界
 

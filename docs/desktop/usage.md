@@ -1,9 +1,13 @@
-# ISACA 桌面开发版使用说明
+# ISACA 桌面版使用说明
 
 ## 环境与入口
 
-固定 Python 3.12、SLiCAP 5.2.1，SFG 算法源码随本仓库统一安装。
-不修改旧 `slicap_env`，不修改任何 Conda 环境中的 SLiCAP 源码。
+发布版已经私有携带 Python 3.12、SLiCAP 5.2.1、Qt、SFG 算法和 Graphviz。
+用户安装 `ISACA-Desktop-<版本>-win64-setup.exe` 后，可直接从开始菜单启动，
+不需要安装 Python、Conda 或 Graphviz，也不会修改系统 PATH。
+
+以下命令仅用于源码开发，不修改旧 `slicap_env`，也不修改任何 Conda 环境中的
+SLiCAP 源码：
 
 在 `ISACA-Desktop` 仓库根目录：
 
@@ -73,7 +77,7 @@ MNA 页使用标准矩阵方程显示；SFG 页使用十倍频程对数轴标出
 
 ## Graphviz
 
-开发版暂时可以使用当前环境的 dot，或仅给本次进程设置：
+源码开发版可以使用当前环境的 dot，或仅给本次进程设置：
 
 ```powershell
 $env:ISACA_GRAPHVIZ_DOT = '你的 Graphviz 路径\dot.exe'
@@ -81,13 +85,13 @@ $env:ISACA_GRAPHVIZ_DOT = '你的 Graphviz 路径\dot.exe'
 ```
 
 这不修改系统 PATH。dot 缺失或超时只会影响 SFG SVG，不会丢弃 DOT、表达式和数值结果。
-发布版的私有 Graphviz 尚待构建及验收，不要把开发机可运行当成安装包已完成。
+发布版已经私有携带并自动使用 Graphviz，不要求用户单独配置。
 
 ## 暂缓的功能
 
 视觉入口目前仅为实验性接口，按用户决定暂停视觉测试和性能验证，不纳入本阶段验收。
 不要依赖其识别结果直接分析陌生电路。CPU/GPU 包、模型分发、故障回退仍需独立测试。
-本版没有大模型辅助报告，没有云端部署，也没有已验收的 EXE 安装器。
+本版没有大模型辅助报告，也没有云端部署。Windows x64 安装包不包含视觉模型及其权重。
 
 ## 可重复验证
 

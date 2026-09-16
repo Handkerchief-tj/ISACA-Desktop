@@ -31,9 +31,9 @@ test = [
     "pytest-qt>=4.4,<5",
 ]
 deploy = [
-    "nuitka>=2.7",
-    "ordered-set>=4.1",
-    "zstandard>=0.23",
+    "nuitka==4.1.1",
+    "ordered-set==4.1.0",
+    "zstandard==0.25.0",
 ]
 
 [tool.setuptools.packages.find]
