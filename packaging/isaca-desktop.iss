@@ -39,12 +39,16 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
 
+[Dirs]
+Name: "{localappdata}\ISACA"
+Name: "{localappdata}\ISACA\logs"
+
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\ISACA Desktop"; Filename: "{app}\ISACA.exe"
-Name: "{autodesktop}\ISACA Desktop"; Filename: "{app}\ISACA.exe"; Tasks: desktopicon
+Name: "{group}\ISACA Desktop"; Filename: "{app}\ISACA.exe"; WorkingDir: "{localappdata}\ISACA"
+Name: "{autodesktop}\ISACA Desktop"; Filename: "{app}\ISACA.exe"; WorkingDir: "{localappdata}\ISACA"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\ISACA.exe"; Description: "Launch ISACA Desktop"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\ISACA.exe"; WorkingDir: "{localappdata}\ISACA"; Description: "Launch ISACA Desktop"; Flags: nowait postinstall skipifsilent
