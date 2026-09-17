@@ -103,6 +103,13 @@ try {
     }
     $applicationDirectory = $executable.Directory.FullName
 
+    # A GUI smoke run can leave Chromium's startup warning beside the executable.
+    # It is runtime output, not a release artifact, so never package it.
+    $transientDebugLog = Join-Path $applicationDirectory "debug.log"
+    if (Test-Path -LiteralPath $transientDebugLog) {
+        Remove-Item -LiteralPath $transientDebugLog -Force
+    }
+
     # Nuitka does not discover DLLs linked by Conda's standard-library .pyd files.
     $pythonBase = (& $buildPython -c "import sys; print(sys.base_prefix)").Trim()
     $condaRuntime = Join-Path $pythonBase "Library\bin"
