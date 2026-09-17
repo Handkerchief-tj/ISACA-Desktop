@@ -4,7 +4,7 @@
 
 发布版已经私有携带 Python 3.12、SLiCAP 5.2.1、Qt、SFG 算法和 Graphviz。
 用户安装 `ISACA-Desktop-<版本>-win64-setup.exe` 后，可直接从开始菜单启动，
-不需要安装 Python、Conda 或 Graphviz，也不会修改系统 PATH。
+不需要管理员权限，也不需要安装 Python、Conda 或 Graphviz，不会修改系统 PATH。
 
 以下命令仅用于源码开发，不修改旧 `slicap_env`，也不修改任何 Conda 环境中的
 SLiCAP 源码：

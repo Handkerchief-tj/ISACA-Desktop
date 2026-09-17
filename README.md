@@ -35,7 +35,8 @@ SLiCAP 5.2.1 官方 Structured Electronic Design Environment 原理图画布，�
 
 下载 `ISACA-Desktop-<版本>-win64-setup.exe` 后直接运行安装器。安装完成后可从
 开始菜单或可选的桌面快捷方式启动 `ISACA Desktop`。程序、Python 3.12、SLiCAP
-5.2.1、Qt 和私有 Graphviz 均由安装包提供，不修改系统 Python 或 PATH。
+5.2.1、Qt 和私有 Graphviz 均由安装包提供，不修改系统 Python 或 PATH。安装采用
+当前用户模式，不需要管理员权限，默认位置为 `%LOCALAPPDATA%\Programs\ISACA`。
 
 安装包目前未进行商业代码签名，Windows SmartScreen 可能显示未知发布者提示。
 发布者应同时提供 `release-manifest-<版本>.json`，用户可用以下命令核对 SHA-256：
