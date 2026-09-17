@@ -52,3 +52,6 @@ Name: "{autodesktop}\ISACA Desktop"; Filename: "{app}\ISACA.exe"; WorkingDir: "{
 
 [Run]
 Filename: "{app}\ISACA.exe"; WorkingDir: "{localappdata}\ISACA"; Description: "Launch ISACA Desktop"; Flags: nowait postinstall skipifsilent
+
+[UninstallDelete]
+Type: files; Name: "{app}\debug.log"
