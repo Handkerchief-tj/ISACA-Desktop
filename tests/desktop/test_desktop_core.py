@@ -8,12 +8,12 @@ import numpy as np
 import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import QApplication, QPushButton, QTableWidget, QTableWidgetItem
 
 from isaca_api.models import AnalysisRequest
 from isaca_api.slicap_adapter import _bode_frequency_range, _root_record, _transfer_presentation
 from isaca_api.slicap_schematic import internal_to_slicap_schematic
-from isaca_desktop.panels import AnalysisSetupDock
+from isaca_desktop.panels import AnalysisSetupDock, NetlistEditor, ProjectInputDock
 from isaca_desktop.protocol import WorkerRequest, WorkerEvent, desktop_command, write_request
 from isaca_desktop.results import _numeric_html, _summary_html
 from isaca_desktop.worker import _run_export
@@ -80,6 +80,19 @@ def test_analysis_panel_uses_paper_defaults_and_explicit_default_opt_in(qt_app) 
     assert options["max_steps_per_subrange"] == 10
     assert options["use_slicap_defaults"] is False
     panel.deleteLater()
+
+
+def test_netlist_editor_makes_the_editing_workflow_explicit(qt_app) -> None:
+    editor = NetlistEditor()
+    assert "下方文本区域直接编辑" in editor.edit_hint.text()
+    assert editor.editor.accessibleName() == "可编辑的 SLiCAP 网表文本区"
+
+    project_dock = ProjectInputDock()
+    button_texts = {button.text() for button in project_dock.findChildren(QPushButton)}
+    assert "新建当前项目的网表..." in button_texts
+    assert "打开并编辑网表..." in button_texts
+    editor.deleteLater()
+    project_dock.deleteLater()
 
 
 def test_component_parameter_candidates_keep_component_property_context() -> None:

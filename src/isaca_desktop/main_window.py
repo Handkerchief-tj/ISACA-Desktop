@@ -42,7 +42,7 @@ class IsacaMainWindow(SLiCAPMainWindow):
         self.analysis_dock = AnalysisSetupDock(self)
         self.log_dock = TaskLogDock(self)
         self.netlist_editor = NetlistEditor(self)
-        self.netlist_dock = QDockWidget("SLiCAP 网表", self)
+        self.netlist_dock = QDockWidget("网表编辑器（可直接修改）", self)
         self.netlist_dock.setObjectName("isaca_netlist_editor")
         self.netlist_dock.setWidget(self.netlist_editor)
         self.results = ResultTabs(self)
@@ -89,6 +89,7 @@ class IsacaMainWindow(SLiCAPMainWindow):
         self.project_dock.new_schematic_requested.connect(self.new_schematic)
         self.project_dock.open_schematic_requested.connect(self.open_schematic)
         self.project_dock.export_schematic_requested.connect(self.export_active_schematic)
+        self.project_dock.new_netlist_requested.connect(self.new_netlist)
         self.project_dock.open_netlist_requested.connect(self.open_netlist)
         self.project_dock.save_netlist_requested.connect(self.save_netlist)
         self.project_dock.import_image_requested.connect(self.import_image)
@@ -189,6 +190,43 @@ class IsacaMainWindow(SLiCAPMainWindow):
         selected, _ = QFileDialog.getOpenFileName(self, "打开 SLiCAP 网表", start, "SLiCAP netlist (*.cir);;All files (*)")
         if selected:
             self._load_netlist_path(Path(selected))
+
+    def new_netlist(self) -> None:
+        """Create an editable .cir file inside the current project's cir folder."""
+
+        if not self._require_project() or not self._confirm_netlist_change():
+            return
+        selected, _ = QFileDialog.getSaveFileName(
+            self, "新建当前项目的 SLiCAP 网表", str(self.project_root / "cir" / "circuit.cir"),
+            "SLiCAP netlist (*.cir)",
+        )
+        if not selected:
+            return
+        path = Path(selected)
+        if path.suffix.lower() != ".cir":
+            path = path.with_suffix(".cir")
+        template = (
+            f"{path.stem}\n"
+            "* Add circuit elements below and update source/detector as needed.\n"
+            ".source Vin\n"
+            ".detector V_out\n\n"
+            "Vin in 0 V value=1\n\n"
+            ".end\n"
+        )
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(template, encoding="utf-8")
+        except OSError as error:
+            self._show_error(f"创建网表失败：{error}")
+            return
+        self._document = None
+        self.analysis_dock.reset_parameters()
+        self.netlist_editor.set_netlist(template, path)
+        self.analysis_dock.input_mode.setCurrentIndex(0)
+        self._show_top_dock(self.netlist_dock)
+        self.netlist_editor.editor.setFocus()
+        self.log_dock.append(f"已新建网表：{path}")
+        self.statusBar().showMessage("已新建网表，请在中央网表编辑器中添加电路元件。")
 
     def _load_netlist_path(self, path: Path) -> None:
         if not self._confirm_netlist_change():

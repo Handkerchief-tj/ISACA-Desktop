@@ -140,9 +140,17 @@ class NetlistEditor(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(2, 2, 2, 2)
         self.path_label = QLabel("未加载网表")
+        self.edit_hint = QLabel(
+            "在下方文本区域直接编辑当前 .cir 网表；完成后保存，并在右侧验证后运行分析。"
+        )
+        self.edit_hint.setWordWrap(True)
+        self.edit_hint.setStyleSheet("color: #555;")
         self.editor = NetlistCodeEditor()
+        self.editor.setAccessibleName("可编辑的 SLiCAP 网表文本区")
+        self.editor.setPlaceholderText("请从左侧打开并编辑 .cir 网表，或从当前原理图导出网表。")
         self.editor.textChanged.connect(self.changed)
         layout.addWidget(self.path_label)
+        layout.addWidget(self.edit_hint)
         layout.addWidget(self.editor)
 
     def set_netlist(self, text: str, path: str | Path | None = None) -> None:
@@ -163,6 +171,7 @@ class ProjectInputDock(QDockWidget):
     new_schematic_requested = Signal()
     open_schematic_requested = Signal()
     export_schematic_requested = Signal()
+    new_netlist_requested = Signal()
     open_netlist_requested = Signal()
     save_netlist_requested = Signal()
     import_image_requested = Signal()
@@ -179,7 +188,8 @@ class ProjectInputDock(QDockWidget):
             ("新建 SLiCAP 原理图", self.new_schematic_requested),
             ("打开 SLiCAP 原理图...", self.open_schematic_requested),
             ("导出当前原理图网表", self.export_schematic_requested),
-            ("打开网表...", self.open_netlist_requested),
+            ("新建当前项目的网表...", self.new_netlist_requested),
+            ("打开并编辑网表...", self.open_netlist_requested),
             ("保存网表", self.save_netlist_requested),
             ("从电路图片识别...", self.import_image_requested),
         ):
@@ -373,6 +383,8 @@ class AnalysisSetupDock(QDockWidget):
 
         self._overrides.clear()
         self.parameter_table.setRowCount(0)
+        self.source_value.setText("-")
+        self.detector_value.setText("-")
 
     def _emit_run_request(self, _checked: bool = False) -> None:
         """Validate editable options before handing them to the main window."""
