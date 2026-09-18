@@ -21,6 +21,9 @@ SLiCAP 5.2.1 官方 Structured Electronic Design Environment 原理图画布，�
 本仓库是完整单仓库版本：桌面界面、SLiCAP 适配层和 `sfg_prototype` 算法源码
 都位于同一个 `src/`，不需要再克隆或安装第二个算法仓库。
 
+> 源码协作只需要本仓库。`build/`、`deployment/`、`dist/`、本地 Conda 环境、
+> 模型权重和安装包均不会提交到 Git；克隆后按下方步骤在自己的电脑上创建环境。
+
 ## 当前状态
 
 - 可从源码运行 PySide6 桌面开发版，绘图体验来自 SLiCAP 5.2.1 官方画布。
@@ -48,20 +51,42 @@ Get-FileHash .\ISACA-Desktop-<版本>-win64-setup.exe -Algorithm SHA256
 项目、分析结果和用户日志保存在用户选择的项目目录及
 `%LOCALAPPDATA%\ISACA`，卸载程序不会删除这些用户数据。
 
-## 从源码开发
+## 从源码运行（推荐给协作者）
 
-只需要克隆这一个仓库。在 PowerShell 中执行：
+前置条件：Windows 10/11 x64、Git、Miniconda/Anaconda，以及首次安装依赖时可访问
+Python 包源的网络。无需 Node.js，也不需要克隆旧 Web 或算法仓库。
+
+推荐直接从 `environment.yml` 创建固定名称的独立环境：
 
 ```powershell
 git clone https://github.com/Handkerchief-tj/ISACA-Desktop.git
 cd ISACA-Desktop
+conda env create -f environment.yml
+conda activate isaca_desktop
+.\scripts\check-environment.ps1 -SkipTests
+.\start-desktop.ps1
+```
+
+也可以手动创建 Python 3.12 环境。该方式会运行完整测试，首次执行可能需要几分钟：
+
+```powershell
 conda create -n isaca_desktop python=3.12 -y
 conda activate isaca_desktop
 .\setup.ps1
 ```
 
 `setup.ps1` 会一次性安装桌面端、SLiCAP 5.2.1 和仓库内置 SFG 算法，并运行
-完整测试。已经配置好环境时可用 `.\setup.ps1 -SkipTests` 跳过回归。
+完整测试。已经配置好环境时可用 `.\setup.ps1 -SkipTests` 跳过完整回归，但仍会
+检查版本、关键模块导入和依赖冲突。只有需要自行构建安装包时才使用
+`.\setup.ps1 -WithDeploy` 安装 Nuitka 等发布依赖。
+
+SLiCAP 首次导入可能询问 `Do you have NGspice installed?`。本项目的官方原理图、
+SLiCAP 符号分析和 SFG 流程不要求 NGspice；没有安装时输入 `n` 即可。SLiCAP 会把
+用户级配置写入 `~/SLiCAP.ini`，不会修改仓库源码。
+
+运行依赖及版本范围以 `pyproject.toml` 为准；经验证的 Windows 发布版本记录在
+`packaging/constraints-release.txt`。源码运行不要求与发布约束逐项完全相同，但
+`Python 3.12` 和 `SLiCAP 5.2.1` 必须严格匹配。
 
 ## 启动
 
@@ -110,6 +135,9 @@ scripts/             环境检查及可复现实验脚本
 
 该命令检查 Python 3.12、SLiCAP 5.2.1 和关键依赖，并统一运行桌面与算法测试。
 不应提交 `runs/`、缓存、模型权重或 SLiCAP 自动生成的项目输出。
+
+协作者的完整安装、更新和故障排查见
+[源码环境与验收说明](docs/desktop/teammate-setup.md)。
 
 ## 构建 Windows 安装包
 
