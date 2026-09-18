@@ -26,6 +26,7 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\ISACA.exe
+UninstallDisplayName={#AppName} {#AppVersion} - Intelligent Symbolic Analog Circuit Analyzer
 VersionInfoVersion={#AppVersion}
 VersionInfoProductName={#AppName}
 VersionInfoProductVersion={#AppVersion}
@@ -48,6 +49,7 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs 
 
 [Icons]
 Name: "{group}\ISACA Desktop"; Filename: "{app}\ISACA.exe"; WorkingDir: "{localappdata}\ISACA"
+Name: "{group}\{cm:UninstallProgram,{#AppName}}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\ISACA Desktop"; Filename: "{app}\ISACA.exe"; WorkingDir: "{localappdata}\ISACA"; Tasks: desktopicon
 
 [Run]
