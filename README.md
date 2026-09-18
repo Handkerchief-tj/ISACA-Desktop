@@ -1,9 +1,8 @@
 # ISACA Desktop
 
 **ISACA（Intelligent Symbolic Analog Circuit Analyzer）** 是面向模拟电路教学与研究的
-Windows 桌面分析工具。它直接复用 SLiCAP 5.2.1 官方 Structured Electronic Design
-Environment 的原理图编辑器，并把网表检查、数值分析和按频率子区间执行的 SFG
-符号化简整合到同一个 PySide6 应用中。
+Windows 桌面分析工具，支持用户绘制电路原理图并生成电路网表，指定待分析端口和电路参数，输出传递函数、零极点等结果的数值解和基于
+信号流图进行化简的解析解。
 
 
 ## 技术路线
@@ -54,10 +53,10 @@ Environment 的原理图编辑器，并把网表检查、数值分析和按频�
 
 根据使用目的选择一种方式即可：
 
-| 方式 | 适合人群 | 需要自行安装环境 | 是否下载完整安装包 |
-| --- | --- | --- | --- |
-| 方法一：克隆源码 | 开发者、组员、需要修改算法的人 | 需要 Git 和 Conda | 否 |
-| 方法二：安装包 | 教师、学生、只需要使用软件的人 | 不需要 Python/Conda | 是 |
+| 方式 | 需要自行安装环境 | 是否下载完整安装包 |
+| --- | --- | --- |
+| 方法一：克隆源码 | 需要 Git 和 Conda | 否 |
+| 方法二：安装包 | 不需要 Python/Conda | 是 |
 
 ### 方法一：克隆源码并创建环境
 
@@ -71,14 +70,13 @@ Environment 的原理图编辑器，并把网表检查、数值分析和按频�
 在 PowerShell 中依次执行：
 
 ```powershell
-# 1. 下载完整源码。SFG 算法已经包含在这个仓库中。
+# 1. 下载完整源码。
 git clone https://github.com/Handkerchief-tj/ISACA-Desktop.git
 
-# 2. 进入仓库根目录，后续命令都在这里运行。
+# 2. 进入仓库根目录。
 cd ISACA-Desktop
 
 # 3. 按 environment.yml 创建独立的 Python 3.12 环境并安装依赖。
-#    不会修改 Conda base，也不会下载 ISACA 安装包。
 conda env create -f environment.yml
 
 # 4. 激活刚创建的环境。
@@ -112,11 +110,6 @@ git pull
 ./setup.ps1 -SkipTests
 ```
 
-> **关于下载体量**：源码仓库当前只有数 MB，因此这种方式不需要下载约 205 MB 的
-> standalone 安装包。但 Conda 仍需分别下载 Python、PySide6、SLiCAP、NumPy、SciPy、
-> Matplotlib 等运行依赖，所以总网络流量和最终磁盘占用不一定比安装包更小。源码安装
-> 的主要优势是便于开发、调试和更新，而不是保证占用更少。
-
 更完整的源码安装和故障排查见
 [源码环境与验收说明](docs/desktop/teammate-setup.md)。
 
@@ -139,8 +132,6 @@ Get-FileHash ./ISACA-Desktop-<版本>-win64-setup.exe -Algorithm SHA256
 `%LOCALAPPDATA%\Programs\ISACA`，也不会修改系统 Python 或 `PATH`。当前安装包尚未
 进行商业代码签名，Windows SmartScreen 可能显示“未知发布者”。
 
-> 安装包应作为 GitHub Release 的附件发布，而不是提交到源码目录。如果 Releases
-> 页面暂时没有可下载文件，表示公开安装包尚未发布，请先使用方法一从源码运行。
 
 ## 基本使用流程
 
