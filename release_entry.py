@@ -10,6 +10,10 @@ from pathlib import Path
 def _configure_packaged_runtime() -> None:
     """Keep Qt WebEngine diagnostics out of the read-only install directory."""
 
+    entrypoint = Path(sys.argv[0]).expanduser().resolve()
+    if entrypoint.is_file() and entrypoint.suffix.lower() == ".exe":
+        os.environ["ISACA_PACKAGED_EXECUTABLE"] = str(entrypoint)
+
     local_app_data = Path(
         os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")
     )

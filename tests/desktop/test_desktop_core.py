@@ -14,7 +14,7 @@ from isaca_api.models import AnalysisRequest
 from isaca_api.slicap_adapter import _bode_frequency_range, _root_record, _transfer_presentation
 from isaca_api.slicap_schematic import internal_to_slicap_schematic
 from isaca_desktop.panels import AnalysisSetupDock
-from isaca_desktop.protocol import WorkerRequest, WorkerEvent, write_request
+from isaca_desktop.protocol import WorkerRequest, WorkerEvent, desktop_command, write_request
 from isaca_desktop.results import _numeric_html, _summary_html
 from isaca_desktop.worker import _run_export
 
@@ -40,6 +40,26 @@ def test_worker_protocol_round_trip(tmp_path) -> None:
     restored = WorkerRequest.model_validate_json(path.read_text(encoding="utf-8"))
     assert restored == request
     assert WorkerEvent(event="progress", stage="test", message="ok", progress=0.5).progress == 0.5
+
+
+def test_desktop_command_uses_packaged_executable(monkeypatch, tmp_path) -> None:
+    executable = tmp_path / "ISACA.exe"
+    executable.touch()
+    request_path = tmp_path / "request.json"
+    monkeypatch.setenv("ISACA_PACKAGED_EXECUTABLE", str(executable))
+
+    program, arguments = desktop_command(request_path)
+
+    assert program == str(executable.resolve())
+    assert arguments == ["--worker", str(request_path)]
+
+
+def test_desktop_command_rejects_missing_packaged_executable(monkeypatch, tmp_path) -> None:
+    executable = tmp_path / "missing" / "ISACA.exe"
+    monkeypatch.setenv("ISACA_PACKAGED_EXECUTABLE", str(executable))
+
+    with pytest.raises(FileNotFoundError, match="Packaged ISACA executable not found"):
+        desktop_command(tmp_path / "request.json")
 
 
 def test_bode_range_accepts_numpy_root_arrays() -> None:

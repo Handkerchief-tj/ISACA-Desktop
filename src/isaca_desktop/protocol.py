@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Literal
@@ -53,6 +54,12 @@ def emit_event(event: WorkerEvent) -> None:
 def desktop_command(request_path: str | Path) -> tuple[str, list[str]]:
     """Return the executable and arguments for source and frozen builds."""
 
+    packaged_executable = os.environ.get("ISACA_PACKAGED_EXECUTABLE")
+    if packaged_executable:
+        executable = Path(packaged_executable).expanduser().resolve()
+        if not executable.is_file():
+            raise FileNotFoundError(f"Packaged ISACA executable not found: {executable}")
+        return str(executable), ["--worker", str(request_path)]
     if getattr(sys, "frozen", False) or "__compiled__" in globals():
         return sys.executable, ["--worker", str(request_path)]
     return sys.executable, ["-m", "isaca_desktop", "--worker", str(request_path)]
